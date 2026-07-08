@@ -8,6 +8,7 @@ import rpg.core.scheduler.SchedulerService;
 import rpg.dungeon.DungeonModule;
 import rpg.npc.NpcModule;
 import rpg.quest.QuestModule;
+import rpg.world.api.WorldApiModule;
 import rpg.world.core.command.WorldAdminCommand;
 import rpg.world.core.module.WorldModuleManager;
 import rpg.world.cutscene.CutSceneModule;
@@ -69,6 +70,7 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         moduleManager.register(new DungeonModule());
         moduleManager.register(new QuestModule());
         moduleManager.register(new NpcModule());
+        moduleManager.register(new WorldApiModule());
 
         moduleManager.enableAll();
     }
