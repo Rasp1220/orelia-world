@@ -1,0 +1,189 @@
+package rpg.quest.service;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import rpg.core.player.PlayerDataManager;
+import rpg.quest.model.ObjectiveType;
+import rpg.quest.model.PlayerQuestComponent;
+import rpg.quest.model.PlayerQuestProgress;
+import rpg.quest.model.QuestData;
+import rpg.quest.model.QuestObjective;
+import rpg.quest.model.QuestState;
+import rpg.quest.repository.QuestRepository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * Drives one quest through 未受注 → 受注中 → 達成 → 報告待ち → 完了 (SOW section 11):
+ * accepting, recording objective progress from gameplay events, and reporting completion
+ * to a quest NPC for rewards.
+ */
+public final class QuestProgressService {
+
+    private final PlayerDataManager playerDataManager;
+    private final QuestRepository questRepository;
+    private final QuestEligibilityService eligibilityService;
+    private final QuestRewardService rewardService;
+    private final QuestItemInventoryService inventoryService;
+
+    public QuestProgressService(PlayerDataManager playerDataManager, QuestRepository questRepository,
+                                 QuestEligibilityService eligibilityService, QuestRewardService rewardService,
+                                 QuestItemInventoryService inventoryService) {
+        this.playerDataManager = playerDataManager;
+        this.questRepository = questRepository;
+        this.eligibilityService = eligibilityService;
+        this.rewardService = rewardService;
+        this.inventoryService = inventoryService;
+    }
+
+    public Optional<QuestEligibilityService.Ineligibility> accept(Player player, String questId) {
+        QuestData quest = questRepository.findById(questId).orElse(null);
+        if (quest == null) {
+            return Optional.of(QuestEligibilityService.Ineligibility.PREREQUISITE_MISSING);
+        }
+        Optional<QuestEligibilityService.Ineligibility> ineligible = eligibilityService.checkEligibility(player, quest);
+        if (ineligible.isPresent()) {
+            return ineligible;
+        }
+        component(player.getUniqueId()).ifPresent(c -> c.startQuest(questId));
+        return Optional.empty();
+    }
+
+    /**
+     * Reports a finished quest to the NPC and grants rewards. Returns false if the quest
+     * is not yet in {@link QuestState#AWAITING_REPORT}.
+     */
+    public boolean report(Player player, String questId) {
+        PlayerQuestComponent component = component(player.getUniqueId()).orElse(null);
+        QuestData quest = questRepository.findById(questId).orElse(null);
+        if (component == null || quest == null) {
+            return false;
+        }
+        PlayerQuestProgress progress = component.getActiveQuests().get(questId);
+        if (progress == null || progress.getState() != QuestState.AWAITING_REPORT) {
+            return false;
+        }
+        for (QuestObjective objective : quest.getObjectives()) {
+            if (objective.getType() == ObjectiveType.DELIVER_ITEM
+                    && !inventoryService.consume(player, objective, objective.getRequiredAmount())) {
+                return false;
+            }
+        }
+        component.completeQuest(questId);
+        rewardService.grant(player, quest.getReward());
+        return true;
+    }
+
+    /**
+     * Re-checks {@link ObjectiveType#COLLECT_ITEM}, {@code DELIVER_ITEM} (possession only
+     * - actual consumption happens at {@link #report}) and {@link ObjectiveType#REACH_LOCATION}
+     * objectives, which have no single triggering Bukkit event. Called periodically by
+     * {@link rpg.quest.QuestModule} for every online player.
+     */
+    public void checkPeriodicObjectives(Player player) {
+        component(player.getUniqueId()).ifPresent(component -> {
+            for (var entry : component.getActiveQuests().entrySet()) {
+                QuestData quest = questRepository.findById(entry.getKey()).orElse(null);
+                if (quest == null || entry.getValue().getState() != QuestState.IN_PROGRESS) {
+                    continue;
+                }
+                List<QuestObjective> objectives = quest.getObjectives();
+                for (int i = 0; i < objectives.size(); i++) {
+                    QuestObjective objective = objectives.get(i);
+                    if (objective.getType() == ObjectiveType.COLLECT_ITEM || objective.getType() == ObjectiveType.DELIVER_ITEM) {
+                        int count = inventoryService.countMatching(player, objective);
+                        entry.getValue().setProgress(i, Math.min(objective.getRequiredAmount(), count));
+                    } else if (objective.getType() == ObjectiveType.REACH_LOCATION) {
+                        if (isWithinRadius(player, objective)) {
+                            entry.getValue().setProgress(i, objective.getRequiredAmount());
+                        }
+                    }
+                }
+                evaluateCompletion(quest, entry.getValue());
+            }
+        });
+    }
+
+    private boolean isWithinRadius(Player player, QuestObjective objective) {
+        Location location = player.getLocation();
+        if (location.getWorld() == null || !location.getWorld().getName().equals(objective.getWorld())) {
+            return false;
+        }
+        double dx = location.getX() - objective.getX();
+        double dy = location.getY() - objective.getY();
+        double dz = location.getZ() - objective.getZ();
+        return (dx * dx + dy * dy + dz * dz) <= objective.getRadius() * objective.getRadius();
+    }
+
+    public void onMonsterKilled(UUID playerId, String monsterId) {
+        progressMatchingObjectives(playerId, ObjectiveType.KILL_MONSTER, monsterId, 1);
+    }
+
+    public void onBossKilled(UUID playerId, String bossId) {
+        progressMatchingObjectives(playerId, ObjectiveType.KILL_BOSS, bossId, 1);
+    }
+
+    public void onNpcTalked(UUID playerId, String npcId) {
+        progressMatchingObjectives(playerId, ObjectiveType.TALK_NPC, npcId, 1);
+    }
+
+    /** Hook for the dungeon module to call once integrated; not yet wired automatically. */
+    public void onDungeonCleared(UUID playerId, String dungeonId) {
+        progressMatchingObjectives(playerId, ObjectiveType.CLEAR_DUNGEON, dungeonId, 1);
+    }
+
+    public void setObjectiveProgress(UUID playerId, ObjectiveType type, String targetId, int amount) {
+        component(playerId).ifPresent(component -> {
+            for (var entry : component.getActiveQuests().entrySet()) {
+                QuestData quest = questRepository.findById(entry.getKey()).orElse(null);
+                if (quest == null || entry.getValue().getState() != QuestState.IN_PROGRESS) {
+                    continue;
+                }
+                List<QuestObjective> objectives = quest.getObjectives();
+                for (int i = 0; i < objectives.size(); i++) {
+                    QuestObjective objective = objectives.get(i);
+                    if (objective.getType() == type && targetId.equals(objective.getTargetId())) {
+                        entry.getValue().setProgress(i, Math.min(amount, objective.getRequiredAmount()));
+                    }
+                }
+                evaluateCompletion(quest, entry.getValue());
+            }
+        });
+    }
+
+    private void progressMatchingObjectives(UUID playerId, ObjectiveType type, String targetId, int increment) {
+        component(playerId).ifPresent(component -> {
+            for (var entry : component.getActiveQuests().entrySet()) {
+                QuestData quest = questRepository.findById(entry.getKey()).orElse(null);
+                if (quest == null || entry.getValue().getState() != QuestState.IN_PROGRESS) {
+                    continue;
+                }
+                List<QuestObjective> objectives = quest.getObjectives();
+                for (int i = 0; i < objectives.size(); i++) {
+                    QuestObjective objective = objectives.get(i);
+                    if (objective.getType() == type && targetId.equals(objective.getTargetId())) {
+                        int current = entry.getValue().getProgress(i);
+                        entry.getValue().setProgress(i, Math.min(objective.getRequiredAmount(), current + increment));
+                    }
+                }
+                evaluateCompletion(quest, entry.getValue());
+            }
+        });
+    }
+
+    private void evaluateCompletion(QuestData quest, PlayerQuestProgress progress) {
+        List<QuestObjective> objectives = quest.getObjectives();
+        for (int i = 0; i < objectives.size(); i++) {
+            if (progress.getProgress(i) < objectives.get(i).getRequiredAmount()) {
+                return;
+            }
+        }
+        progress.setState(QuestState.AWAITING_REPORT);
+    }
+
+    private Optional<PlayerQuestComponent> component(UUID uuid) {
+        return playerDataManager.get(uuid).flatMap(d -> d.component(PlayerQuestComponent.class));
+    }
+}

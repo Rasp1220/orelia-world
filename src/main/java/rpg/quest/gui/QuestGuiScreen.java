@@ -1,0 +1,73 @@
+package rpg.quest.gui;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import rpg.core.player.PlayerDataManager;
+import rpg.gui.framework.Gui;
+import rpg.gui.framework.GuiButton;
+import rpg.quest.model.PlayerQuestComponent;
+import rpg.quest.model.QuestData;
+import rpg.quest.model.QuestState;
+import rpg.quest.repository.QuestRepository;
+import rpg.quest.service.QuestProgressService;
+import rpg.util.ItemBuilder;
+
+import java.util.List;
+
+/**
+ * Quest-receptionist screen (SOW section 17 "クエスト"). Quest is a content-layer concern
+ * (orelia-world), so this screen is built here rather than in orelia-core's gui module -
+ * but it reuses orelia-core's generic {@code Gui}/{@code GuiButton} framework classes
+ * directly (pure UI plumbing, not gameplay logic) instead of reinventing them. Orelia-core's
+ * already-registered {@code GuiListener} handles clicks on any {@code Gui} it creates too,
+ * so this module does not register a second click listener.
+ */
+public final class QuestGuiScreen {
+
+    private final QuestRepository questRepository;
+    private final QuestProgressService progressService;
+    private final PlayerDataManager playerDataManager;
+
+    public QuestGuiScreen(QuestRepository questRepository, QuestProgressService progressService, PlayerDataManager playerDataManager) {
+        this.questRepository = questRepository;
+        this.progressService = progressService;
+        this.playerDataManager = playerDataManager;
+    }
+
+    public Gui build(Player player, List<String> offeredQuestIds) {
+        Gui gui = new Gui("&8クエスト", 27);
+        PlayerQuestComponent component = playerDataManager.get(player.getUniqueId())
+                .flatMap(d -> d.component(PlayerQuestComponent.class))
+                .orElse(null);
+
+        int slot = 10;
+        for (String questId : offeredQuestIds) {
+            QuestData quest = questRepository.findById(questId).orElse(null);
+            if (quest == null) {
+                continue;
+            }
+            QuestState state = component == null ? null
+                    : component.getActiveQuests().containsKey(questId) ? component.getActiveQuests().get(questId).getState()
+                    : component.hasCompleted(questId) ? QuestState.COMPLETE : QuestState.NOT_ACCEPTED;
+
+            gui.set(slot++, new GuiButton(new ItemBuilder(Material.WRITABLE_BOOK)
+                    .name("&e" + quest.getName())
+                    .lore(quest.getDescription())
+                    .build(), (clicker, clickType) -> handleClick(clicker, questId, state)));
+        }
+        return gui;
+    }
+
+    private void handleClick(Player player, String questId, QuestState state) {
+        if (state == QuestState.AWAITING_REPORT) {
+            boolean reported = progressService.report(player, questId);
+            player.sendMessage(reported ? ChatColor.GREEN + "クエストを完了しました！" : ChatColor.RED + "報告に失敗しました。");
+        } else if (state == null || state == QuestState.NOT_ACCEPTED) {
+            var failure = progressService.accept(player, questId);
+            player.sendMessage(failure.isEmpty() ? ChatColor.GREEN + "クエストを受注しました。" : ChatColor.RED + "受注条件を満たしていません: " + failure.get());
+        } else {
+            player.sendMessage(ChatColor.YELLOW + "このクエストは進行中です。");
+        }
+    }
+}
