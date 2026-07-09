@@ -15,7 +15,7 @@ commands:
     permission: orelia.quest
   rpgworldadmin:
     description: Administrative commands for Orelia World
-    usage: /rpgworldadmin <reload|...> ...
+    usage: /rpgworldadmin <reload|spawnnpc> ...
     permission: orelia.world.admin
   dialoguechoice:
     description: Internal command run by clickable dialogue choice chat lines
