@@ -4,10 +4,17 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Villager;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import rpg.npc.model.NpcData;
+import rpg.npc.model.NpcEquipmentItem;
 import rpg.npc.repository.NpcRepository;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -44,9 +51,36 @@ public final class NpcSpawnService {
         }
         if (entity instanceof LivingEntity livingEntity) {
             livingEntity.setCollidable(false);
+            applyCosmetics(livingEntity, data);
         }
 
         return Optional.of(entity);
+    }
+
+    /** Reskins the spawned entity per npc.yml's optional {@code profession}/{@code equipment} (SOW section 12). */
+    private void applyCosmetics(LivingEntity entity, NpcData data) {
+        if (entity instanceof Villager villager && data.getVillagerProfession() != null) {
+            try {
+                villager.setProfession(Villager.Profession.valueOf(data.getVillagerProfession().trim().toUpperCase()));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
+        EntityEquipment equipment = entity.getEquipment();
+        if (equipment == null) {
+            return;
+        }
+        for (Map.Entry<EquipmentSlot, NpcEquipmentItem> entry : data.getEquipment().entrySet()) {
+            NpcEquipmentItem item = entry.getValue();
+            ItemStack stack = new ItemStack(item.material());
+            if (item.customModelData() > 0) {
+                ItemMeta meta = stack.getItemMeta();
+                meta.setCustomModelData(item.customModelData());
+                stack.setItemMeta(meta);
+            }
+            equipment.setItem(entry.getKey(), stack);
+            equipment.setDropChance(entry.getKey(), 0f);
+        }
     }
 
     public Optional<String> idOf(Entity entity) {

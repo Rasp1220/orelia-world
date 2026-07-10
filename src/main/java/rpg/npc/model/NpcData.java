@@ -1,9 +1,11 @@
 package rpg.npc.model;
 
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.EquipmentSlot;
 import rpg.api.ShopEntry;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Static NPC definition loaded from {@code npc.yml} (SOW section 12). Which fields are
@@ -11,7 +13,8 @@ import java.util.List;
  * quest receptionist uses {@link #getQuestIds()}, the enhancement NPC uses the enhance-
  * cost fields, and every type can show {@link #getDialogueLines()} plus an optional
  * alternate line when the player holds {@link #getConditionalItemId()} ("アイテム所持で
- * 会話変化").
+ * 会話変化"). {@link #getVillagerProfession()} and {@link #getEquipment()} are purely
+ * cosmetic (SOW section 12 "見た目カスタマイズ") and apply regardless of type.
  */
 public final class NpcData {
 
@@ -31,10 +34,13 @@ public final class NpcData {
     private final List<String> questIds;
     private final double enhancementCostBase;
     private final double enhancementCostPerLevel;
+    private final String villagerProfession;
+    private final Map<EquipmentSlot, NpcEquipmentItem> equipment;
 
     public NpcData(String id, String name, NpcType type, EntityType entityType, String world, double x, double y, double z,
                    float yaw, List<String> dialogueLines, String conditionalItemId, List<String> conditionalDialogueLines,
-                   List<ShopEntry> shopStock, List<String> questIds, double enhancementCostBase, double enhancementCostPerLevel) {
+                   List<ShopEntry> shopStock, List<String> questIds, double enhancementCostBase, double enhancementCostPerLevel,
+                   String villagerProfession, Map<EquipmentSlot, NpcEquipmentItem> equipment) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -51,6 +57,8 @@ public final class NpcData {
         this.questIds = questIds;
         this.enhancementCostBase = enhancementCostBase;
         this.enhancementCostPerLevel = enhancementCostPerLevel;
+        this.villagerProfession = villagerProfession;
+        this.equipment = equipment;
     }
 
     public String getId() {
@@ -115,5 +123,15 @@ public final class NpcData {
 
     public double getEnhancementCostPerLevel() {
         return enhancementCostPerLevel;
+    }
+
+    /** Villager.Profession name to reskin this NPC as, or null for the entity type's default look. */
+    public String getVillagerProfession() {
+        return villagerProfession;
+    }
+
+    /** Cosmetic gear to equip on spawn, keyed by slot. Never dropped, never a real item. */
+    public Map<EquipmentSlot, NpcEquipmentItem> getEquipment() {
+        return equipment;
     }
 }

@@ -2,12 +2,18 @@
 # type: WEAPON_SHOP | ARMOR_SHOP | ACCESSORY_SHOP | QUEST_RECEPTIONIST | JOB_CHANGE |
 #       ENHANCEMENT | WAREHOUSE | GUILD_RECEPTIONIST
 # shop-stock kind: WEAPON | ACCESSORY | VANILLA
+#
+# Cosmetic look (optional, purely visual - no gameplay effect):
+#   profession: one of org.bukkit.entity.Villager.Profession (only applies to entity-type: VILLAGER)
+#   equipment: any of head/chest/legs/feet/hand, each with a vanilla `material` and optional
+#              `custom-model-data` (for a reskinned resource-pack texture, like weapons/accessories)
 
 npcs:
   weapon_merchant:
     name: "武器商人ガレット"
     type: WEAPON_SHOP
     entity-type: VILLAGER
+    profession: WEAPONSMITH
     world: world
     x: 10
     y: 64
@@ -15,6 +21,9 @@ npcs:
     yaw: 180
     dialogue:
       - "いらっしゃい！腕利きの武器を揃えているよ。"
+    equipment:
+      hand:
+        material: IRON_SWORD
     shop-stock:
       item_1:
         kind: WEAPON
@@ -108,6 +117,7 @@ npcs:
     name: "鍛冶屋ドノヴァン"
     type: ENHANCEMENT
     entity-type: VILLAGER
+    profession: TOOLSMITH
     world: world
     x: -12
     y: 64
@@ -115,6 +125,9 @@ npcs:
     yaw: 90
     dialogue:
       - "その武器、もっと強くしてやろうか？"
+    equipment:
+      chest:
+        material: LEATHER_CHESTPLATE
     enhancement-cost-base: 100
     enhancement-cost-per-level: 75
 
