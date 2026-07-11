@@ -10,8 +10,8 @@ import rpg.quest.model.PlayerQuestComponent;
 import rpg.quest.model.QuestState;
 
 /**
- * {@code /rpgquest list} - shows the sender's active quests and their state.
- * {@code /rpgquest abandon <id>} - drops an in-progress quest without rewards.
+ * {@code /ol quest list} - shows the sender's active quests and their state.
+ * {@code /ol quest abandon <id>} - drops an in-progress quest without rewards.
  */
 public final class QuestCommand implements CommandExecutor {
 

@@ -26,4 +26,4 @@ orelia-core and Vault API straight from GitHub).
 ## Config
 
 `quests.yml`, `npc.yml`, `dungeons.yml`, `dialogues.yml`, `story.yml`,
-`cutscenes.yml`, `events.yml`, `config.yml`. Reload all of them with `/rpgworldadmin reload`.
+`cutscenes.yml`, `events.yml`, `config.yml`. Reload all of them with `/oladmin worldreload`.

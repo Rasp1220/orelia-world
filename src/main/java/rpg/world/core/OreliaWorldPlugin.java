@@ -2,6 +2,8 @@ package rpg.world.core;
 
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import rpg.core.command.AdminCommandRegistry;
+import rpg.core.command.PlayerCommandRegistry;
 import rpg.core.config.ConfigManager;
 import rpg.core.player.PlayerDataManager;
 import rpg.core.scheduler.SchedulerService;
@@ -36,6 +38,7 @@ public final class OreliaWorldPlugin extends JavaPlugin {
     private ConfigManager configManager;
     private SchedulerService schedulerService;
     private PlayerDataManager playerDataManager;
+    private PlayerCommandRegistry playerCommandRegistry;
     private WorldModuleManager moduleManager;
 
     @Override
@@ -52,13 +55,25 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         }
         this.playerDataManager = registration.getProvider();
 
+        RegisteredServiceProvider<PlayerCommandRegistry> playerCommandRegistration =
+                getServer().getServicesManager().getRegistration(PlayerCommandRegistry.class);
+        RegisteredServiceProvider<AdminCommandRegistry> adminCommandRegistration =
+                getServer().getServicesManager().getRegistration(AdminCommandRegistry.class);
+        if (playerCommandRegistration == null || adminCommandRegistration == null) {
+            getLogger().severe("OreliaCore's command registries were not found. "
+                    + "Is OreliaCore installed and enabled before OreliaWorld?");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        this.playerCommandRegistry = playerCommandRegistration.getProvider();
+
         this.configManager = new ConfigManager(this);
         this.configManager.register("config.yml");
 
         this.schedulerService = new SchedulerService(this);
         this.moduleManager = new WorldModuleManager(this);
 
-        getCommand("rpgworldadmin").setExecutor(new WorldAdminCommand(this));
+        adminCommandRegistration.getProvider().register("worldreload", new WorldAdminCommand(this));
 
         // Registration order doubles as dependency order, exactly like orelia-core.
         moduleManager.register(new DialogueModule());
@@ -104,5 +119,9 @@ public final class OreliaWorldPlugin extends JavaPlugin {
 
     public WorldModuleManager getModuleManager() {
         return moduleManager;
+    }
+
+    public PlayerCommandRegistry getPlayerCommandRegistry() {
+        return playerCommandRegistry;
     }
 }

@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Drives one player through a {@link DialogueTree}: picks the right entry point for their
  * current flags, prints each node's lines, and renders choices as clickable chat text
- * (SOW DialogueModule "選択肢") that runs {@code /dialoguechoice <n>}.
+ * (SOW DialogueModule "選択肢") that runs {@code /ol dialoguechoice <n>}.
  */
 public final class DialogueSessionService {
 
@@ -91,7 +91,7 @@ public final class DialogueSessionService {
             activeSessions.put(player.getUniqueId(), new ActiveSession(tree.getId(), nodeId));
             for (int i = 0; i < choices.size(); i++) {
                 Component line = Component.text((i + 1) + ". " + choices.get(i).getText(), NamedTextColor.YELLOW)
-                        .clickEvent(ClickEvent.runCommand("/dialoguechoice " + i));
+                        .clickEvent(ClickEvent.runCommand("/ol dialoguechoice " + i));
                 player.sendMessage(line);
             }
         } else if (node.getNextNodeId() != null) {

@@ -75,7 +75,7 @@ public final class QuestModule implements WorldModule {
 
         plugin.getServer().getPluginManager().registerEvents(new QuestKillListener(combatApi, progressService), plugin);
 
-        plugin.getCommand("rpgquest").setExecutor(new QuestCommand(plugin.getPlayerDataManager()));
+        plugin.getPlayerCommandRegistry().register("quest", new QuestCommand(plugin.getPlayerDataManager()));
 
         long periodTicks = plugin.getConfigManager().get("config.yml").get().getLong("quest.objective-check-period-ticks", 40L);
         plugin.getSchedulerService().runTimer(() ->

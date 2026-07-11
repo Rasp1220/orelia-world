@@ -7,8 +7,10 @@ import org.bukkit.command.CommandSender;
 import rpg.world.core.OreliaWorldPlugin;
 
 /**
- * {@code /rpgworldadmin reload} - re-reads every orelia-world config file and asks each
- * module to rebuild its in-memory state.
+ * {@code /oladmin worldreload} - re-reads every orelia-world config file and asks each
+ * module to rebuild its in-memory state. Registered as "worldreload" (not "reload") into
+ * orelia-core's shared {@code AdminCommandRegistry} so it doesn't collide with orelia-core's
+ * own {@code reload}.
  */
 public final class WorldAdminCommand implements CommandExecutor {
 
@@ -20,10 +22,6 @@ public final class WorldAdminCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length == 0 || !args[0].equalsIgnoreCase("reload")) {
-            sender.sendMessage(ChatColor.YELLOW + "Usage: /rpgworldadmin reload");
-            return true;
-        }
         plugin.reload();
         sender.sendMessage(ChatColor.GREEN + "Orelia World configuration reloaded.");
         return true;
