@@ -3,7 +3,7 @@ version: '${version}'
 main: rpg.world.core.OreliaWorldPlugin
 api-version: '1.21'
 author: rasp1220
-description: Orelia content plugin - quest, NPC, dialogue, story, dungeon, region, cutscene, event
+description: Orelia content plugin - quest, NPC, dialogue, story, dungeon, cutscene, event
 folia-supported: false
 depend: [OreliaCore]
 softdepend: [Vault]

@@ -14,12 +14,11 @@ import rpg.world.core.module.WorldModuleManager;
 import rpg.world.cutscene.CutSceneModule;
 import rpg.world.dialogue.DialogueModule;
 import rpg.world.event.EventModule;
-import rpg.world.region.RegionModule;
 import rpg.world.story.StoryModule;
 
 /**
  * Plugin entry point for the orelia-world repo/jar: the content layer (quest/NPC/dialogue/
- * story/dungeon/region/cutscene/event). Requires OreliaCore to already be enabled - every
+ * story/dungeon/cutscene/event). Requires OreliaCore to already be enabled - every
  * gameplay-domain lookup goes through {@code rpg.api} (published by orelia-core via Bukkit's
  * ServicesManager), never through orelia-core's internal module classes.
  *
@@ -62,7 +61,6 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         getCommand("rpgworldadmin").setExecutor(new WorldAdminCommand(this));
 
         // Registration order doubles as dependency order, exactly like orelia-core.
-        moduleManager.register(new RegionModule());
         moduleManager.register(new DialogueModule());
         moduleManager.register(new StoryModule());
         moduleManager.register(new EventModule());
