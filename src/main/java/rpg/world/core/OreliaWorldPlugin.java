@@ -16,6 +16,7 @@ import rpg.world.core.module.WorldModuleManager;
 import rpg.world.cutscene.CutSceneModule;
 import rpg.world.dialogue.DialogueModule;
 import rpg.world.event.EventModule;
+import rpg.world.playerinfo.PlayerInfoModule;
 import rpg.world.story.StoryModule;
 
 /**
@@ -83,6 +84,7 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         moduleManager.register(new DungeonModule());
         moduleManager.register(new QuestModule());
         moduleManager.register(new NpcModule());
+        moduleManager.register(new PlayerInfoModule());
         moduleManager.register(new WorldApiModule());
 
         moduleManager.enableAll();
