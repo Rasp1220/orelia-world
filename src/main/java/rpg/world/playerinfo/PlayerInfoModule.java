@@ -35,12 +35,13 @@ public final class PlayerInfoModule implements WorldModule {
         QuestModule questModule = plugin.getModuleManager().get(QuestModule.class)
                 .orElseThrow(() -> new IllegalStateException("playerinfo module requires quest module"));
 
+        GuiManager guiManager = new GuiManager();
         PlayerInfoItemService itemService = new PlayerInfoItemService(new PlayerInfoItemKeys(plugin));
         PlayerInfoGuiScreen guiScreen = new PlayerInfoGuiScreen(
-                questModule.getQuestRepository(), plugin.getPlayerDataManager(), jobApi, skillApi);
+                questModule.getQuestRepository(), plugin.getPlayerDataManager(), jobApi, skillApi, guiManager);
 
         plugin.getServer().getPluginManager().registerEvents(
-                new PlayerInfoItemListener(itemService, guiScreen, new GuiManager()), plugin);
+                new PlayerInfoItemListener(itemService, guiScreen, guiManager), plugin);
     }
 
     @Override
