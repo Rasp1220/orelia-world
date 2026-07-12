@@ -16,7 +16,7 @@ repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
     // Resolves orelia-core straight from its GitHub repo - no shared monorepo/artifact
-    // registry needed. See https://jitpack.io/#rasp1220/orelia-core
+    // registry needed. See https://jitpack.io/#orelia-mc/orelia-core
     maven("https://jitpack.io")
 }
 
@@ -34,7 +34,7 @@ dependencies {
     // ServicesManager at runtime) or the generic rpg.core.* infrastructure classes
     // (ModuleManager/ConfigManager/PlayerDataManager/PlayerDataComponent...) - never
     // gameplay-module internals like rpg.status/rpg.item directly.
-    compileOnly("com.github.rasp1220:orelia-core:main-SNAPSHOT")
+    compileOnly("com.github.orelia-mc:orelia-core:main-SNAPSHOT")
 
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")

@@ -5,7 +5,7 @@ cutscene, event.
 
 Part of the Orelia 3-plugin split:
 
-- [orelia-core](https://github.com/rasp1220/orelia-core) - combat/player/status foundation (required dependency)
+- [orelia-core](https://github.com/orelia-mc/orelia-core) - combat/player/status foundation (required dependency)
 - **orelia-world** (this repo) - Quest, NPC, Dialogue, Story, Dungeon, CutScene, Event
 - [orelia-extra](https://github.com/rasp1220/orelia-extra) - later MMORPG features, not yet implemented
 
