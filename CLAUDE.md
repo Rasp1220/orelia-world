@@ -105,3 +105,7 @@ under `src/main/resources` + register it in `reload<X>()`, fetch any orelia-core
 via `ServicesManager` in `onEnable` (fail loud with `IllegalStateException` for hard
 dependencies), and add the module to `OreliaWorldPlugin.onEnable()`'s registration list at
 the correct point relative to its dependencies.
+
+## Committing changes
+
+When committing, also update README.md and README_EN.md accordingly.
