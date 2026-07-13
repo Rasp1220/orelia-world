@@ -1,29 +1,27 @@
-# orelia-world
+<img src="https://orelia-mc.github.io/assets/logo_wide.jpg" />
+<h1 align="center">Orelia World</h1>
+<p align="center">Content Plugin of Orelia-MC</p>
 
-Orelia content plugin (Paper 1.21.x / Java 21) - quest, NPC, dialogue, story, dungeon,
-cutscene, event.
+## About
 
-Part of the Orelia 3-plugin split:
+`orelia-world` は Minecraft RPG プラグイン群 **Orelia** のコンテンツプラグイン(Paper 1.21.x / Java 21)です。クエスト・NPC・ダイアログ・ストーリー・ダンジョン・カットシーン・イベントを扱います。
 
-- [orelia-core](https://github.com/orelia-mc/orelia-core) - combat/player/status foundation (required dependency)
-- **orelia-world** (this repo) - Quest, NPC, Dialogue, Story, Dungeon, CutScene, Event
-- [orelia-extra](https://github.com/rasp1220/orelia-extra) - later MMORPG features, not yet implemented
+Orelia は 3 プラグイン構成です。
 
-Requires **orelia-core** to be installed and enabled first (`depend: [OreliaCore]` in
-`plugin.yml`). Talks to it only through `rpg.api` (published via Bukkit's
-`ServicesManager`) - never through orelia-core's internal module classes. Money goes
-through Vault directly, the same way any other Vault-integrated plugin would.
+- [orelia-core](https://github.com/orelia-mc/orelia-core) — 戦闘・プレイヤー・ステータスの基盤(必須依存)
+- **orelia-world**(本リポジトリ) — Quest, NPC, Dialogue, Story, Dungeon, CutScene, Event
+- [orelia-extra](https://github.com/orelia-mc/orelia-extra) — 後発の MMORPG 系機能
 
-## Building
+起動には **orelia-core** が先にインストール・有効化されている必要があります(`plugin.yml` の `depend: [OreliaCore]`)。連携は `rpg.api`(Bukkit の `ServicesManager` で公開)経由のみで、orelia-core の内部モジュールクラスへ直接アクセスすることはありません。経済連携は他の Vault 対応プラグインと同様、Vault を直接利用します。
 
-```
+## Setup
+
+```bash
 ./gradlew build
 ```
 
-Requires network access to `repo.papermc.io` (Paper API) and `jitpack.io` (resolves
-orelia-core and Vault API straight from GitHub).
+ビルドには `repo.papermc.io`(Paper API)と `jitpack.io`(orelia-core・Vault API を GitHub から解決)へのネットワークアクセスが必要です。
 
-## Config
+## Structure
 
-`quests.yml`, `npc.yml`, `dungeons.yml`, `dialogues.yml`, `story.yml`,
-`cutscenes.yml`, `events.yml`, `config.yml`. Reload all of them with `/oladmin worldreload`.
+- 設定ファイル — `quests.yml`, `npc.yml`, `dungeons.yml`, `dialogues.yml`, `story.yml`, `cutscenes.yml`, `events.yml`, `config.yml`。`/oladmin worldreload` で一括リロードできます。
