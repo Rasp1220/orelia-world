@@ -3,29 +3,7 @@ version: '${version}'
 main: rpg.world.core.OreliaWorldPlugin
 api-version: '1.21'
 author: rasp1220
-description: Orelia content plugin - quest, NPC, dialogue, story, dungeon, region, cutscene, event
+description: Orelia content plugin - quest, NPC, dialogue, story, dungeon, cutscene, event
 folia-supported: false
 depend: [OreliaCore]
 softdepend: [Vault]
-
-commands:
-  rpgquest:
-    description: Manage RPG quests
-    usage: /rpgquest <list|abandon> ...
-    permission: orelia.quest
-  rpgworldadmin:
-    description: Administrative commands for Orelia World
-    usage: /rpgworldadmin <reload|...> ...
-    permission: orelia.world.admin
-  dialoguechoice:
-    description: Internal command run by clickable dialogue choice chat lines
-    usage: /dialoguechoice <index>
-    permission: orelia.dialogue
-
-permissions:
-  orelia.quest:
-    default: true
-  orelia.world.admin:
-    default: op
-  orelia.dialogue:
-    default: true

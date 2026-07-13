@@ -2,23 +2,26 @@ package rpg.world.core;
 
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import rpg.core.command.AdminCommandRegistry;
+import rpg.core.command.PlayerCommandRegistry;
 import rpg.core.config.ConfigManager;
 import rpg.core.player.PlayerDataManager;
 import rpg.core.scheduler.SchedulerService;
 import rpg.dungeon.DungeonModule;
 import rpg.npc.NpcModule;
 import rpg.quest.QuestModule;
+import rpg.world.api.WorldApiModule;
 import rpg.world.core.command.WorldAdminCommand;
 import rpg.world.core.module.WorldModuleManager;
 import rpg.world.cutscene.CutSceneModule;
 import rpg.world.dialogue.DialogueModule;
 import rpg.world.event.EventModule;
-import rpg.world.region.RegionModule;
+import rpg.world.playerinfo.PlayerInfoModule;
 import rpg.world.story.StoryModule;
 
 /**
  * Plugin entry point for the orelia-world repo/jar: the content layer (quest/NPC/dialogue/
- * story/dungeon/region/cutscene/event). Requires OreliaCore to already be enabled - every
+ * story/dungeon/cutscene/event). Requires OreliaCore to already be enabled - every
  * gameplay-domain lookup goes through {@code rpg.api} (published by orelia-core via Bukkit's
  * ServicesManager), never through orelia-core's internal module classes.
  *
@@ -36,6 +39,7 @@ public final class OreliaWorldPlugin extends JavaPlugin {
     private ConfigManager configManager;
     private SchedulerService schedulerService;
     private PlayerDataManager playerDataManager;
+    private PlayerCommandRegistry playerCommandRegistry;
     private WorldModuleManager moduleManager;
 
     @Override
@@ -52,16 +56,27 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         }
         this.playerDataManager = registration.getProvider();
 
+        RegisteredServiceProvider<PlayerCommandRegistry> playerCommandRegistration =
+                getServer().getServicesManager().getRegistration(PlayerCommandRegistry.class);
+        RegisteredServiceProvider<AdminCommandRegistry> adminCommandRegistration =
+                getServer().getServicesManager().getRegistration(AdminCommandRegistry.class);
+        if (playerCommandRegistration == null || adminCommandRegistration == null) {
+            getLogger().severe("OreliaCore's command registries were not found. "
+                    + "Is OreliaCore installed and enabled before OreliaWorld?");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        this.playerCommandRegistry = playerCommandRegistration.getProvider();
+
         this.configManager = new ConfigManager(this);
         this.configManager.register("config.yml");
 
         this.schedulerService = new SchedulerService(this);
         this.moduleManager = new WorldModuleManager(this);
 
-        getCommand("rpgworldadmin").setExecutor(new WorldAdminCommand(this));
+        adminCommandRegistration.getProvider().register("worldreload", new WorldAdminCommand(this));
 
         // Registration order doubles as dependency order, exactly like orelia-core.
-        moduleManager.register(new RegionModule());
         moduleManager.register(new DialogueModule());
         moduleManager.register(new StoryModule());
         moduleManager.register(new EventModule());
@@ -69,6 +84,8 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         moduleManager.register(new DungeonModule());
         moduleManager.register(new QuestModule());
         moduleManager.register(new NpcModule());
+        moduleManager.register(new PlayerInfoModule());
+        moduleManager.register(new WorldApiModule());
 
         moduleManager.enableAll();
     }
@@ -104,5 +121,9 @@ public final class OreliaWorldPlugin extends JavaPlugin {
 
     public WorldModuleManager getModuleManager() {
         return moduleManager;
+    }
+
+    public PlayerCommandRegistry getPlayerCommandRegistry() {
+        return playerCommandRegistry;
     }
 }

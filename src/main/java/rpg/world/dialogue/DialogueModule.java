@@ -46,7 +46,7 @@ public final class DialogueModule implements WorldModule {
         plugin.getPlayerDataManager().registerLoader(new DialogueManager(playerRepository));
 
         this.sessionService = new DialogueSessionService(repository, plugin.getPlayerDataManager());
-        plugin.getCommand("dialoguechoice").setExecutor(new DialogueChoiceCommand(sessionService));
+        plugin.getPlayerCommandRegistry().register("dialoguechoice", new DialogueChoiceCommand(sessionService));
     }
 
     @Override

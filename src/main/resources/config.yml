@@ -1,5 +1,5 @@
 # Orelia World configuration.
-# Reload with: /rpgworldadmin reload
+# Reload with: /oladmin worldreload
 
 quest:
   # How often (in ticks) each online player's COLLECT_ITEM / DELIVER_ITEM / REACH_LOCATION
