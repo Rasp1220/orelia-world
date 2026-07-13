@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -22,6 +23,11 @@ import rpg.world.playerinfo.service.PlayerInfoItemService;
  * from being thrown with Q, opens {@link PlayerInfoGuiScreen} on right click, and pins it
  * in place so it can't be moved, swapped out, or trashed while the player's own inventory
  * screen is open.
+ *
+ * <p>Creative-mode players manipulate their own inventory screen through a separate
+ * {@link InventoryCreativeEvent} rather than {@link InventoryClickEvent} - shift-clicking
+ * the item away or dropping it on the delete/trash slot both fire that event instead, so it
+ * needs its own handler or the pinning above is silently bypassed in creative mode.
  */
 public final class PlayerInfoItemListener implements Listener {
 
@@ -95,6 +101,24 @@ public final class PlayerInfoItemListener implements Listener {
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         if (itemService.isPlayerInfoItem(event.getOldCursor())) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * Creative-mode equivalent of {@link #onInventoryClick}: shift-clicking the item away
+     * (from any creative tab) or dropping it on the trash slot both arrive here instead of
+     * as an {@link InventoryClickEvent}, so the pinning logic has to be duplicated for it.
+     */
+    @EventHandler
+    public void onInventoryCreativeClick(InventoryCreativeEvent event) {
+        if (event.getClickedInventory() != null
+                && event.getClickedInventory().getType() == InventoryType.PLAYER
+                && event.getSlot() == PlayerInfoItemService.HOTBAR_SLOT) {
+            event.setCancelled(true);
+            return;
+        }
+        if (itemService.isPlayerInfoItem(event.getCurrentItem()) || itemService.isPlayerInfoItem(event.getCursor())) {
             event.setCancelled(true);
         }
     }
