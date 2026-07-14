@@ -28,9 +28,9 @@ public final class PlayerInfoJobGuiScreen {
         Gui gui = new Gui("&8プレイヤー情報 - ジョブ", SIZE);
         gui.set(BACK_SLOT, backButton);
 
-        String job = jobApi.getCurrentJob(player.getUniqueId()).orElse(null);
-        gui.set(JOB_SLOT, GuiButton.display(new ItemBuilder(job == null ? Material.BARRIER : Material.GOLDEN_HELMET)
-                .name(job == null ? "&7未就業" : "&e" + job)
+        String jobDisplayName = jobApi.getCurrentJobDisplayName(player.getUniqueId()).orElse(null);
+        gui.set(JOB_SLOT, GuiButton.display(new ItemBuilder(jobDisplayName == null ? Material.BARRIER : Material.GOLDEN_HELMET)
+                .name(jobDisplayName == null ? "&7未就業" : "&e" + jobDisplayName)
                 .build()));
         return gui;
     }
