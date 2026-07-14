@@ -34,8 +34,6 @@ import rpg.world.story.StoryModule;
  */
 public final class OreliaWorldPlugin extends JavaPlugin {
 
-    private static OreliaWorldPlugin instance;
-
     private ConfigManager configManager;
     private SchedulerService schedulerService;
     private PlayerDataManager playerDataManager;
@@ -44,8 +42,6 @@ public final class OreliaWorldPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        instance = this;
-
         RegisteredServiceProvider<PlayerDataManager> registration =
                 getServer().getServicesManager().getRegistration(PlayerDataManager.class);
         if (registration == null) {
@@ -95,16 +91,11 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         if (moduleManager != null) {
             moduleManager.disableAll();
         }
-        instance = null;
     }
 
     public void reload() {
         configManager.reloadAll();
         moduleManager.reloadAll();
-    }
-
-    public static OreliaWorldPlugin getInstance() {
-        return instance;
     }
 
     public ConfigManager getConfigManager() {

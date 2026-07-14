@@ -29,12 +29,6 @@ public final class EventScheduleService {
                 .collect(Collectors.toList());
     }
 
-    public boolean isActive(String eventId) {
-        return repository.getAll().values().stream()
-                .filter(event -> event.getId().equals(eventId))
-                .anyMatch(event -> event.isActiveAt(LocalDateTime.now()));
-    }
-
     public double getBonusExpMultiplier() {
         return getActiveEvents().stream().mapToDouble(GameEventData::getBonusExpMultiplier).reduce(1.0, (a, b) -> a * b);
     }
