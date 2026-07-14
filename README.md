@@ -25,3 +25,4 @@ Orelia は 3 プラグイン構成です。
 ## Structure
 
 - 設定ファイル — `quests.yml`, `npc.yml`, `dungeons.yml`, `dialogues.yml`, `story.yml`, `cutscenes.yml`, `events.yml`, `config.yml`。`/oladmin worldreload` で一括リロードできます。
+- 職業指南役(job-change NPC)は起動時の自動スポーン対象外です。`/oladmin spawnnpc <npc-id>`(例: `/oladmin spawnnpc job_master`)で実行者の足元に手動配置してください。`npc.yml` に定義された他のIDも同じコマンドでスポーンできます。

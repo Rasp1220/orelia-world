@@ -6,6 +6,7 @@ import org.bukkit.plugin.ServicesManager;
 import rpg.api.GuiApi;
 import rpg.api.ItemApi;
 import rpg.gui.framework.GuiManager;
+import rpg.npc.command.NpcSpawnCommand;
 import rpg.npc.listener.NpcInteractListener;
 import rpg.npc.repository.NpcRepository;
 import rpg.npc.service.NpcKeys;
@@ -55,6 +56,8 @@ public final class NpcModule implements WorldModule {
         plugin.getServer().getPluginManager().registerEvents(new NpcInteractListener(
                 spawnService, guiApi, new GuiManager(), questModule.getQuestGuiScreen(), questModule.getProgressService(),
                 itemApi, economy), plugin);
+
+        plugin.getAdminCommandRegistry().register("spawnnpc", new NpcSpawnCommand(repository, spawnService));
 
         // Delay one tick so every world referenced by npc.yml has finished loading.
         plugin.getSchedulerService().runLater(syncService::syncAll, 1L);
