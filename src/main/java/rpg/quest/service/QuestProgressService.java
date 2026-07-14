@@ -14,6 +14,7 @@ import rpg.quest.repository.QuestRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 /**
  * Drives one quest through 未受注 → 受注中 → 達成 → 報告待ち → 完了 (SOW section 11):
@@ -83,25 +84,18 @@ public final class QuestProgressService {
      * {@link rpg.quest.QuestModule} for every online player.
      */
     public void checkPeriodicObjectives(Player player) {
-        component(player.getUniqueId()).ifPresent(component -> {
-            for (var entry : component.getActiveQuests().entrySet()) {
-                QuestData quest = questRepository.findById(entry.getKey()).orElse(null);
-                if (quest == null || entry.getValue().getState() != QuestState.IN_PROGRESS) {
-                    continue;
-                }
-                List<QuestObjective> objectives = quest.getObjectives();
-                for (int i = 0; i < objectives.size(); i++) {
-                    QuestObjective objective = objectives.get(i);
-                    if (objective.getType() == ObjectiveType.COLLECT_ITEM || objective.getType() == ObjectiveType.DELIVER_ITEM) {
-                        int count = inventoryService.countMatching(player, objective);
-                        entry.getValue().setProgress(i, Math.min(objective.getRequiredAmount(), count));
-                    } else if (objective.getType() == ObjectiveType.REACH_LOCATION) {
-                        if (isWithinRadius(player, objective)) {
-                            entry.getValue().setProgress(i, objective.getRequiredAmount());
-                        }
+        forEachInProgressQuest(player.getUniqueId(), (quest, progress) -> {
+            List<QuestObjective> objectives = quest.getObjectives();
+            for (int i = 0; i < objectives.size(); i++) {
+                QuestObjective objective = objectives.get(i);
+                if (objective.getType() == ObjectiveType.COLLECT_ITEM || objective.getType() == ObjectiveType.DELIVER_ITEM) {
+                    int count = inventoryService.countMatching(player, objective);
+                    progress.setProgress(i, Math.min(objective.getRequiredAmount(), count));
+                } else if (objective.getType() == ObjectiveType.REACH_LOCATION) {
+                    if (isWithinRadius(player, objective)) {
+                        progress.setProgress(i, objective.getRequiredAmount());
                     }
                 }
-                evaluateCompletion(quest, entry.getValue());
             }
         });
     }
@@ -134,40 +128,31 @@ public final class QuestProgressService {
         progressMatchingObjectives(playerId, ObjectiveType.CLEAR_DUNGEON, dungeonId, 1);
     }
 
-    public void setObjectiveProgress(UUID playerId, ObjectiveType type, String targetId, int amount) {
-        component(playerId).ifPresent(component -> {
-            for (var entry : component.getActiveQuests().entrySet()) {
-                QuestData quest = questRepository.findById(entry.getKey()).orElse(null);
-                if (quest == null || entry.getValue().getState() != QuestState.IN_PROGRESS) {
-                    continue;
+    private void progressMatchingObjectives(UUID playerId, ObjectiveType type, String targetId, int increment) {
+        forEachInProgressQuest(playerId, (quest, progress) -> {
+            List<QuestObjective> objectives = quest.getObjectives();
+            for (int i = 0; i < objectives.size(); i++) {
+                QuestObjective objective = objectives.get(i);
+                if (objective.getType() == type && targetId.equals(objective.getTargetId())) {
+                    int current = progress.getProgress(i);
+                    progress.setProgress(i, Math.min(objective.getRequiredAmount(), current + increment));
                 }
-                List<QuestObjective> objectives = quest.getObjectives();
-                for (int i = 0; i < objectives.size(); i++) {
-                    QuestObjective objective = objectives.get(i);
-                    if (objective.getType() == type && targetId.equals(objective.getTargetId())) {
-                        entry.getValue().setProgress(i, Math.min(amount, objective.getRequiredAmount()));
-                    }
-                }
-                evaluateCompletion(quest, entry.getValue());
             }
         });
     }
 
-    private void progressMatchingObjectives(UUID playerId, ObjectiveType type, String targetId, int increment) {
+    /**
+     * Runs {@code action} over every quest the player currently has {@link QuestState#IN_PROGRESS},
+     * then re-evaluates whether that quest just became complete.
+     */
+    private void forEachInProgressQuest(UUID playerId, BiConsumer<QuestData, PlayerQuestProgress> action) {
         component(playerId).ifPresent(component -> {
             for (var entry : component.getActiveQuests().entrySet()) {
                 QuestData quest = questRepository.findById(entry.getKey()).orElse(null);
                 if (quest == null || entry.getValue().getState() != QuestState.IN_PROGRESS) {
                     continue;
                 }
-                List<QuestObjective> objectives = quest.getObjectives();
-                for (int i = 0; i < objectives.size(); i++) {
-                    QuestObjective objective = objectives.get(i);
-                    if (objective.getType() == type && targetId.equals(objective.getTargetId())) {
-                        int current = entry.getValue().getProgress(i);
-                        entry.getValue().setProgress(i, Math.min(objective.getRequiredAmount(), current + increment));
-                    }
-                }
+                action.accept(quest, entry.getValue());
                 evaluateCompletion(quest, entry.getValue());
             }
         });
