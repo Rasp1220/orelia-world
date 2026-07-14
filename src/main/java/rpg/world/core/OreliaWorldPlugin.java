@@ -40,6 +40,7 @@ public final class OreliaWorldPlugin extends JavaPlugin {
     private SchedulerService schedulerService;
     private PlayerDataManager playerDataManager;
     private PlayerCommandRegistry playerCommandRegistry;
+    private AdminCommandRegistry adminCommandRegistry;
     private WorldModuleManager moduleManager;
 
     @Override
@@ -67,6 +68,7 @@ public final class OreliaWorldPlugin extends JavaPlugin {
             return;
         }
         this.playerCommandRegistry = playerCommandRegistration.getProvider();
+        this.adminCommandRegistry = adminCommandRegistration.getProvider();
 
         this.configManager = new ConfigManager(this);
         this.configManager.register("config.yml");
@@ -74,7 +76,7 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         this.schedulerService = new SchedulerService(this);
         this.moduleManager = new WorldModuleManager(this);
 
-        adminCommandRegistration.getProvider().register("worldreload", new WorldAdminCommand(this));
+        this.adminCommandRegistry.register("worldreload", new WorldAdminCommand(this));
 
         // Registration order doubles as dependency order, exactly like orelia-core.
         moduleManager.register(new DialogueModule());
@@ -125,5 +127,9 @@ public final class OreliaWorldPlugin extends JavaPlugin {
 
     public PlayerCommandRegistry getPlayerCommandRegistry() {
         return playerCommandRegistry;
+    }
+
+    public AdminCommandRegistry getAdminCommandRegistry() {
+        return adminCommandRegistry;
     }
 }
