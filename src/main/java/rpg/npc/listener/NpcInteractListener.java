@@ -1,7 +1,6 @@
 package rpg.npc.listener;
 
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +9,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import rpg.api.GuiApi;
 import rpg.api.ItemApi;
+import rpg.core.message.MessageManager;
 import rpg.gui.framework.GuiManager;
 import rpg.npc.model.NpcData;
 import rpg.npc.service.NpcSpawnService;
@@ -33,10 +33,11 @@ public final class NpcInteractListener implements Listener {
     private final QuestProgressService questProgressService;
     private final ItemApi itemApi;
     private final Economy economy;
+    private final MessageManager messages;
 
     public NpcInteractListener(NpcSpawnService spawnService, GuiApi guiApi, GuiManager guiManager,
                                 QuestGuiScreen questGuiScreen, QuestProgressService questProgressService,
-                                ItemApi itemApi, Economy economy) {
+                                ItemApi itemApi, Economy economy, MessageManager messages) {
         this.spawnService = spawnService;
         this.guiApi = guiApi;
         this.guiManager = guiManager;
@@ -44,6 +45,7 @@ public final class NpcInteractListener implements Listener {
         this.questProgressService = questProgressService;
         this.itemApi = itemApi;
         this.economy = economy;
+        this.messages = messages;
     }
 
     @EventHandler
@@ -73,17 +75,17 @@ public final class NpcInteractListener implements Listener {
     private void enhance(Player player, NpcData data) {
         ItemStack weapon = player.getInventory().getItemInMainHand();
         if (itemApi.identifyWeapon(weapon).isEmpty()) {
-            player.sendMessage(ChatColor.RED + "強化する武器を手に持ってください。");
+            messages.send(player, "npc.enhancement-need-weapon");
             return;
         }
         int currentLevel = itemApi.getEnhancementLevel(weapon);
         double cost = data.getEnhancementCostBase() + data.getEnhancementCostPerLevel() * currentLevel;
         if (economy == null || !economy.has(player, cost) || !economy.withdrawPlayer(player, cost).transactionSuccess()) {
-            player.sendMessage(ChatColor.RED + "強化費用が足りません（" + cost + "）。");
+            messages.send(player, "npc.enhancement-insufficient-funds", "cost", cost);
             return;
         }
         int newLevel = itemApi.enhanceWeapon(weapon);
-        player.sendMessage(ChatColor.GREEN + "武器を強化しました！ (+" + newLevel + ")");
+        messages.send(player, "npc.enhancement-success", "level", newLevel);
     }
 
     private void sendDialogue(Player player, NpcData data) {

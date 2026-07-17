@@ -1,11 +1,11 @@
 package rpg.quest.command;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import rpg.core.message.MessageManager;
 import rpg.core.player.PlayerDataManager;
 import rpg.quest.model.PlayerQuestComponent;
 import rpg.quest.model.QuestState;
@@ -20,43 +20,45 @@ import java.util.List;
 public final class QuestCommand implements CommandExecutor, TabCompleter {
 
     private final PlayerDataManager playerDataManager;
+    private final MessageManager messages;
 
-    public QuestCommand(PlayerDataManager playerDataManager) {
+    public QuestCommand(PlayerDataManager playerDataManager, MessageManager messages) {
         this.playerDataManager = playerDataManager;
+        this.messages = messages;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Players only.");
+            messages.send(sender, "command.player-only");
             return true;
         }
         PlayerQuestComponent component = playerDataManager.get(player.getUniqueId())
                 .flatMap(d -> d.component(PlayerQuestComponent.class))
                 .orElse(null);
         if (component == null) {
-            sender.sendMessage(ChatColor.RED + "Quest data is not loaded yet.");
+            messages.send(sender, "quest.data-not-loaded");
             return true;
         }
 
         if (args.length >= 2 && args[0].equalsIgnoreCase("abandon")) {
             String questId = args[1];
             if (component.getActiveQuests().remove(questId) != null) {
-                sender.sendMessage(ChatColor.YELLOW + "Abandoned quest: " + questId);
+                messages.send(sender, "quest.abandoned", "quest", questId);
             } else {
-                sender.sendMessage(ChatColor.RED + "You do not have that quest active.");
+                messages.send(sender, "quest.not-active");
             }
             return true;
         }
 
         if (component.getActiveQuests().isEmpty()) {
-            sender.sendMessage(ChatColor.YELLOW + "You have no active quests.");
+            messages.send(sender, "quest.no-active");
             return true;
         }
-        sender.sendMessage(ChatColor.GREEN + "Active quests:");
+        messages.send(sender, "quest.active-header");
         for (var entry : component.getActiveQuests().entrySet()) {
             QuestState state = entry.getValue().getState();
-            sender.sendMessage(ChatColor.GRAY + "- " + entry.getKey() + " " + ChatColor.WHITE + "[" + state + "]");
+            messages.sendRaw(sender, "quest.active-entry", "quest", entry.getKey(), "state", state);
         }
         return true;
     }

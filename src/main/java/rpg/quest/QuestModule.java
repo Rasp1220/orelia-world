@@ -70,11 +70,13 @@ public final class QuestModule implements WorldModule {
         QuestRewardService rewardService = new QuestRewardService(
                 plugin.getPlayerDataManager(), statusApi, economy, itemApi, accessoryApi, skillApi);
         this.progressService = new QuestProgressService(plugin.getPlayerDataManager(), questRepository, eligibilityService, rewardService, inventoryService);
-        this.questGuiScreen = new QuestGuiScreen(questRepository, progressService, plugin.getPlayerDataManager());
+        this.questGuiScreen = new QuestGuiScreen(questRepository, progressService, plugin.getPlayerDataManager(), plugin.getMessageManager());
 
         plugin.getServer().getPluginManager().registerEvents(new QuestKillListener(combatApi, progressService), plugin);
 
-        plugin.getPlayerCommandRegistry().register("quest", new QuestCommand(plugin.getPlayerDataManager()));
+        plugin.getPlayerCommandRegistry().register("quest",
+                new QuestCommand(plugin.getPlayerDataManager(), plugin.getMessageManager()),
+                "クエストの受注状況を確認します。", "quest <list|abandon <id>>");
 
         long periodTicks = plugin.getConfigManager().get("config.yml").get().getLong("quest.objective-check-period-ticks", 40L);
         plugin.getSchedulerService().runTimer(() ->

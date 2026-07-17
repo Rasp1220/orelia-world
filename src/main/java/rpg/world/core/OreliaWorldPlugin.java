@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import rpg.core.command.AdminCommandRegistry;
 import rpg.core.command.PlayerCommandRegistry;
 import rpg.core.config.ConfigManager;
+import rpg.core.message.MessageManager;
 import rpg.core.player.PlayerDataManager;
 import rpg.core.scheduler.SchedulerService;
 import rpg.dungeon.DungeonModule;
@@ -35,6 +36,7 @@ import rpg.world.story.StoryModule;
 public final class OreliaWorldPlugin extends JavaPlugin {
 
     private ConfigManager configManager;
+    private MessageManager messageManager;
     private SchedulerService schedulerService;
     private PlayerDataManager playerDataManager;
     private PlayerCommandRegistry playerCommandRegistry;
@@ -68,11 +70,13 @@ public final class OreliaWorldPlugin extends JavaPlugin {
 
         this.configManager = new ConfigManager(this);
         this.configManager.register("config.yml");
+        this.messageManager = new MessageManager(configManager.register("messages.yml"));
 
         this.schedulerService = new SchedulerService(this);
         this.moduleManager = new WorldModuleManager(this);
 
-        this.adminCommandRegistry.register("worldreload", new WorldAdminCommand(this));
+        this.adminCommandRegistry.register("worldreload", new WorldAdminCommand(this),
+                "orelia-world の設定を再読み込みします。", "worldreload");
 
         // Registration order doubles as dependency order, exactly like orelia-core.
         moduleManager.register(new DialogueModule());
@@ -102,6 +106,10 @@ public final class OreliaWorldPlugin extends JavaPlugin {
 
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+
+    public MessageManager getMessageManager() {
+        return messageManager;
     }
 
     public SchedulerService getSchedulerService() {

@@ -1,0 +1,47 @@
+# Centralized user-facing text. Every chat message the plugin sends goes through
+# rpg.core.message.MessageManager (reused from orelia-core), keyed by the dotted paths
+# below - do not hardcode ChatColor + literal strings in command/listener/gui code, add a
+# key here instead. NPC dialogue lines / quest descriptions / story text stay in their own
+# content yml files (npc.yml, quests.yml, story.yml, ...) since those are per-entry authored
+# content, not fixed UI copy.
+
+prefix: "&8[&6Orelia&8] &r"
+
+command:
+  player-only: "&cプレイヤーのみ実行できます。"
+
+quest:
+  data-not-loaded: "&cクエストデータがまだ読み込まれていません。"
+  abandoned: "&eクエスト「{quest}」を放棄しました。"
+  not-active: "&cそのクエストは受注していません。"
+  no-active: "&e受注中のクエストはありません。"
+  active-header: "&a受注中のクエスト:"
+  active-entry: "&7- {quest} &f[{state}]"
+  accepted: "&aクエストを受注しました。"
+  requirements-not-met: "&c受注条件を満たしていません: {reason}"
+  completed: "&aクエストを完了しました！"
+  report-failed: "&c報告に失敗しました。"
+  in-progress: "&eこのクエストは進行中です。"
+
+npc:
+  enhancement-need-weapon: "&c強化する武器を手に持ってください。"
+  enhancement-insufficient-funds: "&c強化費用が足りません（{cost}）。"
+  enhancement-success: "&a武器を強化しました！ (+{level})"
+  admin:
+    usage: "&e使い方: /oladmin npc <create <id> <type> [entityType]|move <id>|remove <id>|list [page]>"
+    usage-create: "&e使い方: /oladmin npc create <id> <type> [entityType]"
+    usage-move: "&e使い方: /oladmin npc move <id>"
+    usage-remove: "&e使い方: /oladmin npc remove <id>"
+    unknown-type: "&c不明なNPCタイプです: {type}"
+    unknown-entity-type: "&c不明なエンティティタイプです: {type}"
+    already-exists: "&cそのIDのNPCは既に存在します: {id}"
+    created: "&aNPC「{id}」をここに設置しました。"
+    moved: "&aNPC「{id}」をここに移動しました。"
+    removed: "&aNPC「{id}」を削除しました。"
+    not-found: "&c指定したNPCは見つかりません: {id}"
+    list-empty: "&e登録されているNPCはありません。"
+    list-header: "&aNPC一覧 &7({page}/{total}ページ)"
+    list-entry: "&7- {id} [{type}] @ {world} {x},{y},{z}"
+
+admin:
+  reloaded: "&aOrelia World の設定を再読み込みしました。"

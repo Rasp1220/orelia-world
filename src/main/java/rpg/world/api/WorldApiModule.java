@@ -1,6 +1,7 @@
 package rpg.world.api;
 
 import org.bukkit.plugin.ServicePriority;
+import rpg.npc.NpcModule;
 import rpg.quest.QuestModule;
 import rpg.world.core.OreliaWorldPlugin;
 import rpg.world.core.module.WorldModule;
@@ -21,9 +22,15 @@ public final class WorldApiModule implements WorldModule {
     public void onEnable(OreliaWorldPlugin plugin) {
         QuestModule questModule = plugin.getModuleManager().get(QuestModule.class)
                 .orElseThrow(() -> new IllegalStateException("world-api module requires quest module"));
+        NpcModule npcModule = plugin.getModuleManager().get(NpcModule.class)
+                .orElseThrow(() -> new IllegalStateException("world-api module requires npc module"));
 
         plugin.getServer().getServicesManager().register(
                 QuestApi.class, new QuestApiImpl(plugin.getPlayerDataManager()), plugin, ServicePriority.Normal);
+        plugin.getServer().getServicesManager().register(
+                WorldDebugApi.class,
+                new WorldDebugApiImpl(plugin.getConfigManager(), questModule.getProgressService(), npcModule.getRepository()),
+                plugin, ServicePriority.Normal);
     }
 
     @Override
