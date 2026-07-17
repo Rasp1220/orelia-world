@@ -183,6 +183,29 @@ public final class QuestProgressService {
         progress.setState(QuestState.AWAITING_REPORT);
     }
 
+    /**
+     * Debug helper: force every objective of an in-progress quest straight to completion
+     * (still requires a normal {@link #report} afterwards for reward grant). Used by
+     * orelia-debug's testplay tooling to skip a quest's objectives without playing them out.
+     */
+    public boolean forceCompleteObjectives(UUID playerId, String questId) {
+        PlayerQuestComponent component = component(playerId).orElse(null);
+        QuestData quest = questRepository.findById(questId).orElse(null);
+        if (component == null || quest == null) {
+            return false;
+        }
+        PlayerQuestProgress progress = component.getActiveQuests().get(questId);
+        if (progress == null || progress.getState() != QuestState.IN_PROGRESS) {
+            return false;
+        }
+        List<QuestObjective> objectives = quest.getObjectives();
+        for (int i = 0; i < objectives.size(); i++) {
+            progress.setProgress(i, objectives.get(i).getRequiredAmount());
+        }
+        evaluateCompletion(quest, progress);
+        return true;
+    }
+
     private Optional<PlayerQuestComponent> component(UUID uuid) {
         return playerDataManager.get(uuid).flatMap(d -> d.component(PlayerQuestComponent.class));
     }

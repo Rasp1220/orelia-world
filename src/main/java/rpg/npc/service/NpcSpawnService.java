@@ -1,6 +1,8 @@
 package rpg.npc.service;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -55,5 +57,19 @@ public final class NpcSpawnService {
 
     public Optional<NpcData> dataOf(Entity entity) {
         return idOf(entity).flatMap(repository::findById);
+    }
+
+    /** Removes every entity tagged with {@code npcId} across every loaded world. */
+    public boolean despawn(String npcId) {
+        boolean removedAny = false;
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (idOf(entity).map(npcId::equals).orElse(false)) {
+                    entity.remove();
+                    removedAny = true;
+                }
+            }
+        }
+        return removedAny;
     }
 }

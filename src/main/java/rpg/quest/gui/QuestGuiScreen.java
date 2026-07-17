@@ -1,8 +1,8 @@
 package rpg.quest.gui;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import rpg.core.message.MessageManager;
 import rpg.core.player.PlayerDataManager;
 import rpg.gui.framework.Gui;
 import rpg.gui.framework.GuiButton;
@@ -28,11 +28,14 @@ public final class QuestGuiScreen {
     private final QuestRepository questRepository;
     private final QuestProgressService progressService;
     private final PlayerDataManager playerDataManager;
+    private final MessageManager messages;
 
-    public QuestGuiScreen(QuestRepository questRepository, QuestProgressService progressService, PlayerDataManager playerDataManager) {
+    public QuestGuiScreen(QuestRepository questRepository, QuestProgressService progressService,
+                           PlayerDataManager playerDataManager, MessageManager messages) {
         this.questRepository = questRepository;
         this.progressService = progressService;
         this.playerDataManager = playerDataManager;
+        this.messages = messages;
     }
 
     public Gui build(Player player, List<String> offeredQuestIds) {
@@ -62,12 +65,16 @@ public final class QuestGuiScreen {
     private void handleClick(Player player, String questId, QuestState state) {
         if (state == QuestState.AWAITING_REPORT) {
             boolean reported = progressService.report(player, questId);
-            player.sendMessage(reported ? ChatColor.GREEN + "クエストを完了しました！" : ChatColor.RED + "報告に失敗しました。");
+            messages.send(player, reported ? "quest.completed" : "quest.report-failed");
         } else if (state == null || state == QuestState.NOT_ACCEPTED) {
             var failure = progressService.accept(player, questId);
-            player.sendMessage(failure.isEmpty() ? ChatColor.GREEN + "クエストを受注しました。" : ChatColor.RED + "受注条件を満たしていません: " + failure.get());
+            if (failure.isEmpty()) {
+                messages.send(player, "quest.accepted");
+            } else {
+                messages.send(player, "quest.requirements-not-met", "reason", failure.get());
+            }
         } else {
-            player.sendMessage(ChatColor.YELLOW + "このクエストは進行中です。");
+            messages.send(player, "quest.in-progress");
         }
     }
 }

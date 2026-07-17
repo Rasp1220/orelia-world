@@ -77,4 +77,19 @@ public final class NpcRepository {
     public Map<String, NpcData> getAll() {
         return Map.copyOf(npcs);
     }
+
+    /** Adds a brand-new in-memory NPC definition. Overwrites silently if {@code id} already exists. */
+    public void add(String id, NpcData data) {
+        npcs.put(id, data);
+    }
+
+    /** Replaces an existing in-memory NPC definition (e.g. after moving it). */
+    public void replace(String id, NpcData data) {
+        npcs.put(id, data);
+    }
+
+    /** Removes an NPC definition from memory. Returns {@code false} if {@code id} was not registered. */
+    public boolean remove(String id) {
+        return npcs.remove(id) != null;
+    }
 }

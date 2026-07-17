@@ -6,8 +6,10 @@ import org.bukkit.plugin.ServicesManager;
 import rpg.api.GuiApi;
 import rpg.api.ItemApi;
 import rpg.gui.framework.GuiManager;
+import rpg.npc.command.NpcAdminCommand;
 import rpg.npc.listener.NpcInteractListener;
 import rpg.npc.repository.NpcRepository;
+import rpg.npc.service.NpcAdminService;
 import rpg.npc.service.NpcKeys;
 import rpg.npc.service.NpcSpawnService;
 import rpg.npc.service.NpcSpawnSyncService;
@@ -54,7 +56,11 @@ public final class NpcModule implements WorldModule {
 
         plugin.getServer().getPluginManager().registerEvents(new NpcInteractListener(
                 spawnService, guiApi, new GuiManager(), questModule.getQuestGuiScreen(), questModule.getProgressService(),
-                itemApi, economy), plugin);
+                itemApi, economy, plugin.getMessageManager()), plugin);
+
+        NpcAdminService adminService = new NpcAdminService(repository, spawnService, plugin.getConfigManager());
+        plugin.getAdminCommandRegistry().register("npc", new NpcAdminCommand(adminService, plugin.getMessageManager()),
+                "NPCの設置・移動・削除を行います。", "npc <create <id> <type> [entityType]|move <id>|remove <id>|list [page]>");
 
         // Delay one tick so every world referenced by npc.yml has finished loading.
         plugin.getSchedulerService().runLater(syncService::syncAll, 1L);

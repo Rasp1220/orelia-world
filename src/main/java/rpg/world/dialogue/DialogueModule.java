@@ -46,7 +46,8 @@ public final class DialogueModule implements WorldModule {
         plugin.getPlayerDataManager().registerLoader(new DialogueManager(playerRepository));
 
         this.sessionService = new DialogueSessionService(repository, plugin.getPlayerDataManager());
-        plugin.getPlayerCommandRegistry().register("dialoguechoice", new DialogueChoiceCommand(sessionService));
+        plugin.getPlayerCommandRegistry().register("dialoguechoice", new DialogueChoiceCommand(sessionService),
+                "対話の選択肢を選びます（内部用）。", "dialoguechoice <index>");
     }
 
     @Override
