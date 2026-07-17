@@ -1,6 +1,7 @@
 package rpg.world.playerinfo;
 
 import org.bukkit.plugin.ServicesManager;
+import rpg.api.GuiApi;
 import rpg.api.JobApi;
 import rpg.api.SkillApi;
 import rpg.gui.framework.GuiManager;
@@ -28,8 +29,9 @@ public final class PlayerInfoModule implements WorldModule {
         ServicesManager services = plugin.getServer().getServicesManager();
         JobApi jobApi = services.load(JobApi.class);
         SkillApi skillApi = services.load(SkillApi.class);
-        if (jobApi == null || skillApi == null) {
-            throw new IllegalStateException("playerinfo module requires OreliaCore's JobApi and SkillApi");
+        GuiApi guiApi = services.load(GuiApi.class);
+        if (jobApi == null || skillApi == null || guiApi == null) {
+            throw new IllegalStateException("playerinfo module requires OreliaCore's JobApi, SkillApi and GuiApi");
         }
 
         QuestModule questModule = plugin.getModuleManager().get(QuestModule.class)
@@ -38,7 +40,7 @@ public final class PlayerInfoModule implements WorldModule {
         GuiManager guiManager = new GuiManager();
         PlayerInfoItemService itemService = new PlayerInfoItemService(new PlayerInfoItemKeys(plugin));
         PlayerInfoGuiScreen guiScreen = new PlayerInfoGuiScreen(
-                questModule.getQuestRepository(), plugin.getPlayerDataManager(), jobApi, skillApi, guiManager);
+                questModule.getQuestRepository(), plugin.getPlayerDataManager(), jobApi, skillApi, guiApi, guiManager);
 
         plugin.getServer().getPluginManager().registerEvents(
                 new PlayerInfoItemListener(itemService, guiScreen, guiManager), plugin);

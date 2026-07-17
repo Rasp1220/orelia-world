@@ -2,6 +2,7 @@ package rpg.world.playerinfo.gui;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import rpg.api.GuiApi;
 import rpg.api.JobApi;
 import rpg.api.SkillApi;
 import rpg.core.player.PlayerDataManager;
@@ -28,11 +29,11 @@ public final class PlayerInfoGuiScreen {
     private final PlayerInfoAchievementGuiScreen achievementScreen;
 
     public PlayerInfoGuiScreen(QuestRepository questRepository, PlayerDataManager playerDataManager,
-                                JobApi jobApi, SkillApi skillApi, GuiManager guiManager) {
+                                JobApi jobApi, SkillApi skillApi, GuiApi guiApi, GuiManager guiManager) {
         this.guiManager = guiManager;
         this.questScreen = new PlayerInfoQuestGuiScreen(questRepository, playerDataManager);
         this.jobScreen = new PlayerInfoJobGuiScreen(jobApi);
-        this.skillScreen = new PlayerInfoSkillGuiScreen(skillApi);
+        this.skillScreen = new PlayerInfoSkillGuiScreen(guiApi, skillApi);
         this.achievementScreen = new PlayerInfoAchievementGuiScreen();
     }
 

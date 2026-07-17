@@ -35,8 +35,6 @@ import rpg.world.story.StoryModule;
  */
 public final class OreliaWorldPlugin extends JavaPlugin {
 
-    private static OreliaWorldPlugin instance;
-
     private ConfigManager configManager;
     private MessageManager messageManager;
     private SchedulerService schedulerService;
@@ -47,8 +45,6 @@ public final class OreliaWorldPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        instance = this;
-
         RegisteredServiceProvider<PlayerDataManager> registration =
                 getServer().getServicesManager().getRegistration(PlayerDataManager.class);
         if (registration == null) {
@@ -79,7 +75,7 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         this.schedulerService = new SchedulerService(this);
         this.moduleManager = new WorldModuleManager(this);
 
-        adminCommandRegistration.getProvider().register("worldreload", new WorldAdminCommand(this),
+        this.adminCommandRegistry.register("worldreload", new WorldAdminCommand(this),
                 "orelia-world の設定を再読み込みします。", "worldreload");
 
         // Registration order doubles as dependency order, exactly like orelia-core.
@@ -101,16 +97,11 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         if (moduleManager != null) {
             moduleManager.disableAll();
         }
-        instance = null;
     }
 
     public void reload() {
         configManager.reloadAll();
         moduleManager.reloadAll();
-    }
-
-    public static OreliaWorldPlugin getInstance() {
-        return instance;
     }
 
     public ConfigManager getConfigManager() {

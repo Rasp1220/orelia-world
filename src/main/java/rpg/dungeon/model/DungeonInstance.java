@@ -15,7 +15,6 @@ public final class DungeonInstance {
     private final UUID id = UUID.randomUUID();
     private final DungeonData data;
     private final Map<UUID, Location> membersAndReturnLocations = new ConcurrentHashMap<>();
-    private final long startedAtMillis = System.currentTimeMillis();
     private volatile DungeonInstanceStatus status = DungeonInstanceStatus.ACTIVE;
 
     public DungeonInstance(DungeonData data) {
@@ -34,16 +33,8 @@ public final class DungeonInstance {
         membersAndReturnLocations.put(playerId, returnLocation);
     }
 
-    public Location getReturnLocation(UUID playerId) {
-        return membersAndReturnLocations.get(playerId);
-    }
-
     public Map<UUID, Location> getMembers() {
         return Map.copyOf(membersAndReturnLocations);
-    }
-
-    public long getStartedAtMillis() {
-        return startedAtMillis;
     }
 
     public DungeonInstanceStatus getStatus() {

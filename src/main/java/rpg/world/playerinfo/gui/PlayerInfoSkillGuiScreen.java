@@ -2,6 +2,7 @@ package rpg.world.playerinfo.gui;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import rpg.api.GuiApi;
 import rpg.api.SkillApi;
 import rpg.api.SkillSummary;
 import rpg.gui.framework.Gui;
@@ -13,7 +14,9 @@ import java.util.List;
 /**
  * Dedicated "スキル" sub-screen of the player-info nether-star menu. Opened from
  * {@link PlayerInfoGuiScreen}, which supplies the back button placed in this screen's
- * bottom-right slot.
+ * bottom-right slot. Every button here hands off to orelia-core's own weapon-skill screen
+ * ({@link GuiApi#openSkill(Player)}) - the actual learn/level-up/socket actions live there,
+ * scoped to whichever weapon the player is currently holding.
  */
 public final class PlayerInfoSkillGuiScreen {
 
@@ -21,9 +24,11 @@ public final class PlayerInfoSkillGuiScreen {
     private static final int SIZE = 36;
     private static final int BACK_SLOT = SIZE - 1;
 
+    private final GuiApi guiApi;
     private final SkillApi skillApi;
 
-    public PlayerInfoSkillGuiScreen(SkillApi skillApi) {
+    public PlayerInfoSkillGuiScreen(GuiApi guiApi, SkillApi skillApi) {
+        this.guiApi = guiApi;
         this.skillApi = skillApi;
     }
 
@@ -33,9 +38,10 @@ public final class PlayerInfoSkillGuiScreen {
 
         List<SkillSummary> learned = skillApi.getLearnedSkills(player.getUniqueId());
         if (learned.isEmpty()) {
-            gui.set(SKILL_SLOTS[0], GuiButton.display(new ItemBuilder(Material.PAPER)
+            gui.set(SKILL_SLOTS[0], new GuiButton(new ItemBuilder(Material.PAPER)
                     .name("&7習得済みスキルはありません")
-                    .build()));
+                    .lore("&bクリック &7- 武器スキル画面を開く")
+                    .build(), (clicker, clickType) -> guiApi.openSkill(clicker)));
             return gui;
         }
 
@@ -44,10 +50,13 @@ public final class PlayerInfoSkillGuiScreen {
             if (slotIndex >= SKILL_SLOTS.length) {
                 break;
             }
-            gui.set(SKILL_SLOTS[slotIndex++], GuiButton.display(new ItemBuilder(Material.ENCHANTED_BOOK)
+            gui.set(SKILL_SLOTS[slotIndex++], new GuiButton(new ItemBuilder(Material.ENCHANTED_BOOK)
                     .name("&e" + skill.name())
-                    .lore("&7Lv. " + skill.level() + " / " + skill.maxLevel())
-                    .build()));
+                    .lore(List.of(
+                            "&7Lv. " + skill.level() + " / " + skill.maxLevel(),
+                            "",
+                            "&bクリック &7- 武器スキル画面を開く"))
+                    .build(), (clicker, clickType) -> guiApi.openSkill(clicker)));
         }
         return gui;
     }

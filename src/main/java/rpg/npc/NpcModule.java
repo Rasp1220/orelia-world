@@ -7,6 +7,7 @@ import rpg.api.GuiApi;
 import rpg.api.ItemApi;
 import rpg.gui.framework.GuiManager;
 import rpg.npc.command.NpcAdminCommand;
+import rpg.npc.command.NpcSpawnCommand;
 import rpg.npc.listener.NpcInteractListener;
 import rpg.npc.repository.NpcRepository;
 import rpg.npc.service.NpcAdminService;
@@ -61,6 +62,9 @@ public final class NpcModule implements WorldModule {
         NpcAdminService adminService = new NpcAdminService(repository, spawnService, plugin.getConfigManager());
         plugin.getAdminCommandRegistry().register("npc", new NpcAdminCommand(adminService, plugin.getMessageManager()),
                 "NPCの設置・移動・削除を行います。", "npc <create <id> <type> [entityType]|move <id>|remove <id>|list [page]>");
+
+        plugin.getAdminCommandRegistry().register("spawnnpc", new NpcSpawnCommand(repository, spawnService),
+                "自動配置対象外のNPCを現在地に手動出現させます。", "spawnnpc <npc-id>");
 
         // Delay one tick so every world referenced by npc.yml has finished loading.
         plugin.getSchedulerService().runLater(syncService::syncAll, 1L);

@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import rpg.npc.model.NpcData;
+import rpg.npc.model.NpcType;
 import rpg.npc.repository.NpcRepository;
 
 /**
@@ -12,6 +13,9 @@ import rpg.npc.repository.NpcRepository;
  * checks whether an entity tagged with that NPC's id already exists near its configured
  * location (it would, after a normal server restart, since Bukkit persists entities in
  * chunk data) and only spawns a fresh one if it is missing.
+ *
+ * <p>{@link NpcType#JOB_CHANGE} is excluded from this automatic sync - that NPC is only
+ * ever placed via {@code /oladmin spawnnpc <npc-id>} (see {@code NpcSpawnCommand}).
  */
 public final class NpcSpawnSyncService {
 
@@ -29,6 +33,9 @@ public final class NpcSpawnSyncService {
 
     public void syncAll() {
         for (NpcData data : repository.getAll().values()) {
+            if (data.getType() == NpcType.JOB_CHANGE) {
+                continue;
+            }
             World world = Bukkit.getWorld(data.getWorld());
             if (world == null) {
                 continue;
