@@ -22,4 +22,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build
-        run: ./gradlew build --no-daemon
+        # --refresh-dependencies: orelia-core is resolved as a jitpack "main-SNAPSHOT" (changing
+        # module); without this, the GitHub Actions Gradle cache can keep serving a stale
+        # resolved artifact from an earlier run even after a newer commit lands on orelia-core's
+        # main and jitpack rebuilds.
+        run: ./gradlew build --no-daemon --refresh-dependencies
