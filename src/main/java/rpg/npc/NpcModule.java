@@ -60,14 +60,14 @@ public final class NpcModule implements WorldModule {
                 itemApi, economy, plugin.getMessageManager()), plugin);
 
         NpcAdminService adminService = new NpcAdminService(repository, spawnService, plugin.getConfigManager());
-        plugin.getAdminCommandRegistry().register("npc", new NpcAdminCommand(adminService, plugin.getMessageManager()),
-                "NPCの設置・移動・削除を行います。", "npc <create <id> <type> [entityType]|move <id>|remove <id>|list [page]>");
+        plugin.getAdminCommandRegistry().register("npc", new NpcAdminCommand(adminService, syncService, plugin.getMessageManager()),
+                "NPCの設置・移動・削除を行います。", "npc <create <id> <type> [entityType]|move <id>|remove <id>|list [page]|spawnall>");
 
         plugin.getAdminCommandRegistry().register("spawnnpc", new NpcSpawnCommand(repository, spawnService),
                 "自動配置対象外のNPCを現在地に手動出現させます。", "spawnnpc <npc-id>");
 
-        // Delay one tick so every world referenced by npc.yml has finished loading.
-        plugin.getSchedulerService().runLater(syncService::syncAll, 1L);
+        // NPCs are no longer auto-spawned on startup - run /oladmin npc spawnall to place every
+        // configured NPC that isn't already present (safe to re-run any time).
     }
 
     @Override

@@ -25,5 +25,5 @@ Requires network access to `repo.papermc.io` (Paper API) and `jitpack.io` (resol
 ## Structure
 
 - Config — `quests.yml`, `npc.yml`, `dungeons.yml`, `dialogues.yml`, `story.yml`, `cutscenes.yml`, `events.yml`, `config.yml`. Reload all of them with `/oladmin worldreload`.
-- The job-change NPC is excluded from automatic startup spawning. Place it manually at the sender's location with `/oladmin spawnnpc <npc-id>` (e.g. `/oladmin spawnnpc job_master`). Any other `npc.yml` id can be spawned the same way.
+- NPCs are no longer auto-spawned on startup. Run `/oladmin npc spawnall` to place every configured, not-yet-present NPC from `npc.yml` at once (safe to re-run, never duplicates). The job-change NPC is the one exception - place it individually at the sender's location with `/oladmin spawnnpc <npc-id>` (e.g. `/oladmin spawnnpc job_master`).
 - The nether-star player-info menu's skill tab now opens orelia-core's weapon-skill screen (learn/level-up/socket skills onto the held weapon).
