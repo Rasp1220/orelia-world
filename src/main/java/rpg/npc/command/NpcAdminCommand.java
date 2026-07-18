@@ -10,26 +10,31 @@ import rpg.core.message.MessageManager;
 import rpg.npc.model.NpcData;
 import rpg.npc.model.NpcType;
 import rpg.npc.service.NpcAdminService;
+import rpg.npc.service.NpcSpawnSyncService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * {@code /oladmin npc create <id> <type> [entityType]|move <id>|remove <id>|list [page]} - lets
- * an admin place/relocate/delete NPCs from where they're standing instead of hand-editing
- * {@code npc.yml} and restarting the server.
+ * {@code /oladmin npc create <id> <type> [entityType]|move <id>|remove <id>|list [page]|spawnall}
+ * - lets an admin place/relocate/delete NPCs from where they're standing instead of
+ * hand-editing {@code npc.yml} and restarting the server, and explicitly (re-)spawns every
+ * configured NPC that isn't already present via {@code spawnall} - NPCs are no longer
+ * auto-spawned on startup, this is the only way to populate them.
  */
 public final class NpcAdminCommand implements CommandExecutor, TabCompleter {
 
     private static final int PAGE_SIZE = 8;
-    private static final List<String> SUBCOMMANDS = List.of("create", "move", "remove", "list");
+    private static final List<String> SUBCOMMANDS = List.of("create", "move", "remove", "list", "spawnall");
 
     private final NpcAdminService adminService;
+    private final NpcSpawnSyncService syncService;
     private final MessageManager messages;
 
-    public NpcAdminCommand(NpcAdminService adminService, MessageManager messages) {
+    public NpcAdminCommand(NpcAdminService adminService, NpcSpawnSyncService syncService, MessageManager messages) {
         this.adminService = adminService;
+        this.syncService = syncService;
         this.messages = messages;
     }
 
@@ -44,9 +49,15 @@ public final class NpcAdminCommand implements CommandExecutor, TabCompleter {
             case "move" -> move(sender, args);
             case "remove" -> remove(sender, args);
             case "list" -> list(sender, args);
+            case "spawnall" -> spawnAll(sender);
             default -> messages.send(sender, "npc.admin.usage");
         }
         return true;
+    }
+
+    private void spawnAll(CommandSender sender) {
+        syncService.syncAll();
+        messages.send(sender, "npc.admin.spawned-all");
     }
 
     private void create(CommandSender sender, String[] args) {

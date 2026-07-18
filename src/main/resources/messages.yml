@@ -28,7 +28,7 @@ npc:
   enhancement-insufficient-funds: "&c強化費用が足りません（{cost}）。"
   enhancement-success: "&a武器を強化しました！ (+{level})"
   admin:
-    usage: "&e使い方: /oladmin npc <create <id> <type> [entityType]|move <id>|remove <id>|list [page]>"
+    usage: "&e使い方: /oladmin npc <create <id> <type> [entityType]|move <id>|remove <id>|list [page]|spawnall>"
     usage-create: "&e使い方: /oladmin npc create <id> <type> [entityType]"
     usage-move: "&e使い方: /oladmin npc move <id>"
     usage-remove: "&e使い方: /oladmin npc remove <id>"
@@ -42,6 +42,7 @@ npc:
     list-empty: "&e登録されているNPCはありません。"
     list-header: "&aNPC一覧 &7({page}/{total}ページ)"
     list-entry: "&7- {id} [{type}] @ {world} {x},{y},{z}"
+    spawned-all: "&anpc.ymlに設定済みで、まだ出現していないNPCをすべて設置しました。"
 
 admin:
   reloaded: "&aOrelia World の設定を再読み込みしました。"
