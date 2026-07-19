@@ -42,7 +42,7 @@ public final class NpcAdminService {
         }
         NpcData data = new NpcData(id, name, type, entityType, location.getWorld().getName(),
                 location.getX(), location.getY(), location.getZ(), location.getYaw(),
-                List.of(), null, List.of(), List.of(), List.of(), 100, 50);
+                List.of(), null, List.of(), List.of(), List.of(), 100, 50, "EMERALD", 5, 100, 50);
         repository.add(id, data);
         writePlacement(id, data);
         spawnService.spawn(id, location);
@@ -59,7 +59,9 @@ public final class NpcAdminService {
                 newLocation.getWorld().getName(), newLocation.getX(), newLocation.getY(), newLocation.getZ(),
                 newLocation.getYaw(), existing.getDialogueLines(), existing.getConditionalItemId(),
                 existing.getConditionalDialogueLines(), existing.getShopStock(), existing.getQuestIds(),
-                existing.getEnhancementCostBase(), existing.getEnhancementCostPerLevel());
+                existing.getEnhancementCostBase(), existing.getEnhancementCostPerLevel(),
+                existing.getWeaponLevelupItemMaterial(), existing.getWeaponLevelupItemAmount(),
+                existing.getWeaponLevelupCostBase(), existing.getWeaponLevelupCostPerLevel());
         repository.replace(id, moved);
         writePlacement(id, moved);
         spawnService.despawn(id);

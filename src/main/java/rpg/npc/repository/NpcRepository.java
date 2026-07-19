@@ -67,7 +67,11 @@ public final class NpcRepository {
                 stock,
                 section.getStringList("quest-ids"),
                 section.getDouble("enhancement-cost-base", 100),
-                section.getDouble("enhancement-cost-per-level", 50));
+                section.getDouble("enhancement-cost-per-level", 50),
+                section.getString("weapon-levelup-item-material", "EMERALD"),
+                section.getInt("weapon-levelup-item-amount", 5),
+                section.getDouble("weapon-levelup-cost-base", 100),
+                section.getDouble("weapon-levelup-cost-per-level", 50));
     }
 
     public Optional<NpcData> findById(String id) {

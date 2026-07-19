@@ -1,7 +1,9 @@
 # NPC definitions (SOW section 12).
 # type: WEAPON_SHOP | ARMOR_SHOP | ACCESSORY_SHOP | QUEST_RECEPTIONIST | JOB_CHANGE |
-#       ENHANCEMENT | WAREHOUSE | GUILD_RECEPTIONIST
+#       ENHANCEMENT | WAREHOUSE | GUILD_RECEPTIONIST | WEAPON_LEVELUP
 # shop-stock kind: WEAPON | ACCESSORY | VANILLA
+# weapon-levelup-item-material: a vanilla Material name consumed (with weapon-levelup-item-amount)
+# alongside weapon-levelup-cost-base + weapon-levelup-cost-per-level * currentLevel money.
 
 npcs:
   weapon_merchant:
@@ -117,6 +119,22 @@ npcs:
       - "その武器、もっと強くしてやろうか？"
     enhancement-cost-base: 100
     enhancement-cost-per-level: 75
+
+  weapon_master:
+    name: "武器鍛錬師イグナス"
+    type: WEAPON_LEVELUP
+    entity-type: VILLAGER
+    world: world
+    x: -14
+    y: 64
+    z: 0
+    yaw: 90
+    dialogue:
+      - "その武器、もっと磨いてやろうか？"
+    weapon-levelup-item-material: EMERALD
+    weapon-levelup-item-amount: 5
+    weapon-levelup-cost-base: 100
+    weapon-levelup-cost-per-level: 50
 
   warehouse_keeper:
     name: "倉庫番オットー"
