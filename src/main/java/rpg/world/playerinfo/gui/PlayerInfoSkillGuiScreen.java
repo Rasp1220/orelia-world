@@ -33,14 +33,14 @@ public final class PlayerInfoSkillGuiScreen {
     }
 
     public Gui build(Player player, GuiButton backButton) {
-        Gui gui = new Gui("&8プレイヤー情報 - スキル", SIZE);
+        Gui gui = new Gui("&%8プレイヤー情報 - スキル", SIZE);
         gui.set(BACK_SLOT, backButton);
 
         List<SkillSummary> learned = skillApi.getLearnedSkills(player.getUniqueId());
         if (learned.isEmpty()) {
             gui.set(SKILL_SLOTS[0], new GuiButton(new ItemBuilder(Material.PAPER)
-                    .name("&7習得済みスキルはありません")
-                    .lore("&bクリック &7- 武器スキル画面を開く")
+                    .name("&%7習得済みスキルはありません")
+                    .lore("&%bクリック &%7- 武器スキル画面を開く")
                     .build(), (clicker, clickType) -> guiApi.openSkill(clicker)));
             return gui;
         }
@@ -51,11 +51,11 @@ public final class PlayerInfoSkillGuiScreen {
                 break;
             }
             gui.set(SKILL_SLOTS[slotIndex++], new GuiButton(new ItemBuilder(Material.ENCHANTED_BOOK)
-                    .name("&e" + skill.name())
+                    .name("&%e" + skill.name())
                     .lore(List.of(
-                            "&7Lv. " + skill.level() + " / " + skill.maxLevel(),
+                            "&%7Lv. " + skill.level() + " / " + skill.maxLevel(),
                             "",
-                            "&bクリック &7- 武器スキル画面を開く"))
+                            "&%bクリック &%7- 武器スキル画面を開く"))
                     .build(), (clicker, clickType) -> guiApi.openSkill(clicker)));
         }
         return gui;

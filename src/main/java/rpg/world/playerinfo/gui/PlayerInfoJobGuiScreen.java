@@ -25,12 +25,12 @@ public final class PlayerInfoJobGuiScreen {
     }
 
     public Gui build(Player player, GuiButton backButton) {
-        Gui gui = new Gui("&8プレイヤー情報 - ジョブ", SIZE);
+        Gui gui = new Gui("&%8プレイヤー情報 - ジョブ", SIZE);
         gui.set(BACK_SLOT, backButton);
 
         String jobDisplayName = jobApi.getCurrentJobDisplayName(player.getUniqueId()).orElse(null);
         gui.set(JOB_SLOT, GuiButton.display(new ItemBuilder(jobDisplayName == null ? Material.BARRIER : Material.GOLDEN_HELMET)
-                .name(jobDisplayName == null ? "&7未就業" : "&e" + jobDisplayName)
+                .name(jobDisplayName == null ? "&%7未就業" : "&%e" + jobDisplayName)
                 .build()));
         return gui;
     }
