@@ -19,11 +19,11 @@ public final class PlayerInfoAchievementGuiScreen {
     private static final int BACK_SLOT = SIZE - 1;
 
     public Gui build(Player player, GuiButton backButton) {
-        Gui gui = new Gui("&8プレイヤー情報 - 実績", SIZE);
+        Gui gui = new Gui("&%8プレイヤー情報 - 実績", SIZE);
         gui.set(BACK_SLOT, backButton);
         gui.set(PLACEHOLDER_SLOT, GuiButton.display(new ItemBuilder(Material.GRAY_DYE)
-                .name("&7準備中")
-                .lore("&8実績機能は今後実装予定です。")
+                .name("&%7準備中")
+                .lore("&%8実績機能は今後実装予定です。")
                 .build()));
         return gui;
     }

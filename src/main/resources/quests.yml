@@ -13,7 +13,7 @@ quests:
     party-only: false
     prerequisite-quests: []
     description:
-      - "&7森のスライムを5体討伐しよう。"
+      - "&%7森のスライムを5体討伐しよう。"
     objectives:
       obj_1:
         type: KILL_MONSTER
@@ -33,7 +33,7 @@ quests:
     prerequisite-quests:
       - slime_cull
     description:
-      - "&7ゴブリンの略奪者を倒し、腐った肉を4つ集めて受付に届けよう。"
+      - "&%7ゴブリンの略奪者を倒し、腐った肉を4つ集めて受付に届けよう。"
     objectives:
       obj_1:
         type: KILL_MONSTER
@@ -56,7 +56,7 @@ quests:
     party-only: false
     prerequisite-quests: []
     description:
-      - "&7今日の討伐依頼をこなそう。"
+      - "&%7今日の討伐依頼をこなそう。"
     objectives:
       obj_1:
         type: KILL_MONSTER
@@ -74,7 +74,7 @@ quests:
     party-only: false
     prerequisite-quests: []
     description:
-      - "&7指定された座標まで移動して周辺を偵察しよう。"
+      - "&%7指定された座標まで移動して周辺を偵察しよう。"
     objectives:
       obj_1:
         type: REACH_LOCATION
@@ -96,7 +96,7 @@ quests:
     prerequisite-quests:
       - goblin_supplies
     description:
-      - "&7ゴブリンの洞窟に潜むゴブリンキングを討伐しよう。"
+      - "&%7ゴブリンの洞窟に潜むゴブリンキングを討伐しよう。"
     objectives:
       obj_1:
         type: KILL_BOSS

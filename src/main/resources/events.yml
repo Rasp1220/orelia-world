@@ -12,7 +12,7 @@ events:
     end: "--10-31"
     bonus-exp-multiplier: 1.2
     bonus-money-multiplier: 1.2
-    announce-message: "&6&lハロウィンイベントが始まりました！"
+    announce-message: "&%6&lハロウィンイベントが始まりました！"
 
   christmas:
     name: "クリスマスイベント"
@@ -22,7 +22,7 @@ events:
     end: "--12-26"
     bonus-exp-multiplier: 1.3
     bonus-money-multiplier: 1.3
-    announce-message: "&c&lクリスマスイベントが始まりました！"
+    announce-message: "&%c&lクリスマスイベントが始まりました！"
 
   anniversary_2026:
     name: "周年記念イベント"
@@ -32,4 +32,4 @@ events:
     end: "2026-07-14T23:59:59"
     bonus-exp-multiplier: 1.5
     bonus-money-multiplier: 1.5
-    announce-message: "&d&l周年記念イベントが始まりました！"
+    announce-message: "&%d&l周年記念イベントが始まりました！"

@@ -38,20 +38,20 @@ public final class PlayerInfoGuiScreen {
     }
 
     public Gui build(Player player) {
-        Gui gui = new Gui("&8プレイヤー情報", 27);
-        gui.set(CATEGORY_SLOTS[0], new GuiButton(new ItemBuilder(Material.WRITABLE_BOOK).name("&bクエスト").build(),
+        Gui gui = new Gui("&%8プレイヤー情報", 27);
+        gui.set(CATEGORY_SLOTS[0], new GuiButton(new ItemBuilder(Material.WRITABLE_BOOK).name("&%bクエスト").build(),
                 (p, clickType) -> guiManager.open(p, questScreen.build(p, backButton(p)))));
-        gui.set(CATEGORY_SLOTS[1], new GuiButton(new ItemBuilder(Material.LEATHER_HELMET).name("&bジョブ").build(),
+        gui.set(CATEGORY_SLOTS[1], new GuiButton(new ItemBuilder(Material.LEATHER_HELMET).name("&%bジョブ").build(),
                 (p, clickType) -> guiManager.open(p, jobScreen.build(p, backButton(p)))));
-        gui.set(CATEGORY_SLOTS[2], new GuiButton(new ItemBuilder(Material.ENCHANTED_BOOK).name("&bスキル").build(),
+        gui.set(CATEGORY_SLOTS[2], new GuiButton(new ItemBuilder(Material.ENCHANTED_BOOK).name("&%bスキル").build(),
                 (p, clickType) -> guiManager.open(p, skillScreen.build(p, backButton(p)))));
-        gui.set(CATEGORY_SLOTS[3], new GuiButton(new ItemBuilder(Material.NETHER_STAR).name("&b実績").build(),
+        gui.set(CATEGORY_SLOTS[3], new GuiButton(new ItemBuilder(Material.NETHER_STAR).name("&%b実績").build(),
                 (p, clickType) -> guiManager.open(p, achievementScreen.build(p, backButton(p)))));
         return gui;
     }
 
     private GuiButton backButton(Player player) {
-        return new GuiButton(new ItemBuilder(Material.ARROW).name("&7戻る").build(),
+        return new GuiButton(new ItemBuilder(Material.ARROW).name("&%7戻る").build(),
                 (p, clickType) -> guiManager.open(p, build(p)));
     }
 }

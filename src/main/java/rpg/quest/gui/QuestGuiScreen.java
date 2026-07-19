@@ -39,7 +39,7 @@ public final class QuestGuiScreen {
     }
 
     public Gui build(Player player, List<String> offeredQuestIds) {
-        Gui gui = new Gui("&8クエスト", 27);
+        Gui gui = new Gui("&%8クエスト", 27);
         PlayerQuestComponent component = playerDataManager.get(player.getUniqueId())
                 .flatMap(d -> d.component(PlayerQuestComponent.class))
                 .orElse(null);
@@ -55,7 +55,7 @@ public final class QuestGuiScreen {
                     : component.hasCompleted(questId) ? QuestState.COMPLETE : QuestState.NOT_ACCEPTED;
 
             gui.set(slot++, new GuiButton(new ItemBuilder(Material.WRITABLE_BOOK)
-                    .name("&e" + quest.getName())
+                    .name("&%e" + quest.getName())
                     .lore(quest.getDescription())
                     .build(), (clicker, clickType) -> handleClick(clicker, questId, state)));
         }

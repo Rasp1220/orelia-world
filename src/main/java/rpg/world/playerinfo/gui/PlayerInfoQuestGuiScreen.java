@@ -37,7 +37,7 @@ public final class PlayerInfoQuestGuiScreen {
     }
 
     public Gui build(Player player, GuiButton backButton) {
-        Gui gui = new Gui("&8プレイヤー情報 - クエスト", SIZE);
+        Gui gui = new Gui("&%8プレイヤー情報 - クエスト", SIZE);
         gui.set(BACK_SLOT, backButton);
 
         PlayerQuestComponent component = playerDataManager.get(player.getUniqueId())
@@ -47,7 +47,7 @@ public final class PlayerInfoQuestGuiScreen {
 
         if (activeQuests.isEmpty()) {
             gui.set(QUEST_SLOTS[0], GuiButton.display(new ItemBuilder(Material.PAPER)
-                    .name("&7受注中のクエストはありません")
+                    .name("&%7受注中のクエストはありません")
                     .build()));
             return gui;
         }
@@ -62,7 +62,7 @@ public final class PlayerInfoQuestGuiScreen {
                 continue;
             }
             gui.set(QUEST_SLOTS[slotIndex++], GuiButton.display(new ItemBuilder(Material.WRITTEN_BOOK)
-                    .name("&e" + quest.getName())
+                    .name("&%e" + quest.getName())
                     .lore(questLore(quest, entry.getValue()))
                     .build()));
         }
@@ -72,21 +72,21 @@ public final class PlayerInfoQuestGuiScreen {
     private List<String> questLore(QuestData quest, PlayerQuestProgress progress) {
         List<String> lore = new ArrayList<>(quest.getDescription());
         lore.add("");
-        lore.add("&7状態: " + stateLabel(progress.getState()));
+        lore.add("&%7状態: " + stateLabel(progress.getState()));
         List<QuestObjective> objectives = quest.getObjectives();
         for (int i = 0; i < objectives.size(); i++) {
             QuestObjective objective = objectives.get(i);
-            lore.add("&7" + objectiveLabel(objective) + ": " + progress.getProgress(i) + "/" + objective.getRequiredAmount());
+            lore.add("&%7" + objectiveLabel(objective) + ": " + progress.getProgress(i) + "/" + objective.getRequiredAmount());
         }
         return lore;
     }
 
     private String stateLabel(QuestState state) {
         return switch (state) {
-            case IN_PROGRESS -> "&f受注中";
-            case ACHIEVED, AWAITING_REPORT -> "&a報告待ち";
-            case COMPLETE -> "&a完了";
-            case NOT_ACCEPTED -> "&7未受注";
+            case IN_PROGRESS -> "&%f受注中";
+            case ACHIEVED, AWAITING_REPORT -> "&%a報告待ち";
+            case COMPLETE -> "&%a完了";
+            case NOT_ACCEPTED -> "&%7未受注";
         };
     }
 

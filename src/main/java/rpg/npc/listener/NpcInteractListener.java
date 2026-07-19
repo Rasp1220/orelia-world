@@ -95,7 +95,7 @@ public final class NpcInteractListener implements Listener {
             lines = data.getConditionalDialogueLines();
         }
         for (String line : lines) {
-            player.sendMessage(ColorUtil.colorize("&f[" + data.getName() + "] &7" + line));
+            player.sendMessage(ColorUtil.colorize("&%f[" + data.getName() + "] &%7" + line));
         }
     }
 

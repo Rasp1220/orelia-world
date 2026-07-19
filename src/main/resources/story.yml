@@ -9,7 +9,7 @@ chapters:
     description:
       - "主人公が始まりの町に到着する。"
     required-flags: []
-    unlock-message: "&6&l第一章「始まりの町」が始まりました。"
+    unlock-message: "&%6&l第一章「始まりの町」が始まりました。"
 
   chapter_2:
     order: 2
@@ -18,12 +18,12 @@ chapters:
       - "ゴブリンキングの脅威が町に迫る。"
     required-flags:
       - "cleared_goblin_supplies"
-    unlock-message: "&6&l第二章「ゴブリンの脅威」が始まりました。"
+    unlock-message: "&%6&l第二章「ゴブリンの脅威」が始まりました。"
 
 endings:
   true_ending:
     title: "真のエンディング"
     message:
-      - "&d&l祝福のエンディングを迎えました！"
+      - "&%d&l祝福のエンディングを迎えました！"
     required-flags:
       - "defeated_goblin_king"

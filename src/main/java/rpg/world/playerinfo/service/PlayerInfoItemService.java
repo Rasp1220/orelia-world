@@ -25,8 +25,8 @@ public final class PlayerInfoItemService {
 
     public ItemStack createItem() {
         return new ItemBuilder(Material.NETHER_STAR)
-                .name("&d&lプレイヤー情報")
-                .lore(List.of("&7右クリックでクエスト・ジョブ・", "&7スキル・実績を確認できます。"))
+                .name("&%d&lプレイヤー情報")
+                .lore(List.of("&%7右クリックでクエスト・ジョブ・", "&%7スキル・実績を確認できます。"))
                 .tag(keys.playerInfoItem(), PersistentDataType.BYTE, (byte) 1)
                 .build();
     }
