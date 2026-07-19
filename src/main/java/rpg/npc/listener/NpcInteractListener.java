@@ -112,7 +112,7 @@ public final class NpcInteractListener implements Listener {
         }
         int amount = data.getWeaponLevelupItemAmount();
         if (!player.getInventory().containsAtLeast(new ItemStack(material), amount)) {
-            messages.send(player, "npc.weapon-levelup-insufficient-material", "amount", amount, "material", material);
+            messages.send(player, "npc.weapon-levelup-insufficient-material", "amount", amount, "material", prettifyMaterialName(material));
             return;
         }
         double cost = data.getWeaponLevelupCostBase() + data.getWeaponLevelupCostPerLevel() * currentLevel;
@@ -130,6 +130,22 @@ public final class NpcInteractListener implements Listener {
         }
         itemApi.refreshWeaponLore(weapon);
         messages.send(player, "npc.weapon-levelup-success", "level", newLevel);
+    }
+
+    /** "DIAMOND_SWORD" -> "Diamond Sword" - never show a raw Material enum constant to a player. */
+    private String prettifyMaterialName(Material material) {
+        String[] words = material.name().toLowerCase(java.util.Locale.ROOT).split("_");
+        StringBuilder result = new StringBuilder();
+        for (String word : words) {
+            if (word.isEmpty()) {
+                continue;
+            }
+            if (!result.isEmpty()) {
+                result.append(' ');
+            }
+            result.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+        return result.toString();
     }
 
     private void sendDialogue(Player player, NpcData data) {
