@@ -27,6 +27,11 @@ npc:
   enhancement-need-weapon: "&%c強化する武器を手に持ってください。"
   enhancement-insufficient-funds: "&%c強化費用が足りません（{cost}）。"
   enhancement-success: "&%a武器を強化しました！ (+{level})"
+  weapon-levelup-need-weapon: "&%c武器を手に持ってください。"
+  weapon-levelup-cap-reached: "&%eこの武器はこれ以上レベルアップできません。(Lv.{level})"
+  weapon-levelup-insufficient-material: "&%c素材が足りません（{material} x{amount}）。"
+  weapon-levelup-insufficient-money: "&%c費用が足りません（{cost}）。"
+  weapon-levelup-success: "&%a武器のレベルが上がりました！ (Lv.{level})"
   admin:
     usage: "&%e使い方: /oladmin npc &%7<&%ecreate &%7<&%eid&%7>&%e &%7<&%etype&%7>&%e [entityType]&%7|&%emove &%7<&%eid&%7>&%e&%7|&%eremove &%7<&%eid&%7>&%e&%7|&%elist [page]&%7|&%espawnall&%7>&%e"
     usage-create: "&%e使い方: /oladmin npc create &%7<&%eid&%7>&%e &%7<&%etype&%7>&%e [entityType]"

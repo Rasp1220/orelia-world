@@ -1,6 +1,7 @@
 package rpg.npc.listener;
 
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,6 +12,7 @@ import rpg.api.GuiApi;
 import rpg.api.ItemApi;
 import rpg.core.message.MessageManager;
 import rpg.gui.framework.GuiManager;
+import rpg.npc.event.NpcGuildInteractEvent;
 import rpg.npc.model.NpcData;
 import rpg.npc.service.NpcSpawnService;
 import rpg.quest.gui.QuestGuiScreen;
@@ -66,9 +68,11 @@ public final class NpcInteractListener implements Listener {
             case JOB_CHANGE -> guiApi.openJobChange(player);
             case WAREHOUSE -> guiApi.openWarehouse(player);
             case ENHANCEMENT -> enhance(player, data);
-            case GUILD_RECEPTIONIST -> {
-                // Dialogue only for now - guild features are a hook for future modules.
-            }
+            case WEAPON_LEVELUP -> levelUpWeapon(player, data);
+            // orelia-world can't compile-depend on orelia-extra (guild lives there), so this
+            // just fires a hook event - a harmless no-op unless orelia-extra is installed and
+            // listening (see rpg.extra.guild.listener.NpcGuildInteractListener).
+            case GUILD_RECEPTIONIST -> Bukkit.getPluginManager().callEvent(new NpcGuildInteractEvent(player, data));
         }
     }
 
@@ -86,6 +90,46 @@ public final class NpcInteractListener implements Listener {
         }
         int newLevel = itemApi.enhanceWeapon(weapon);
         messages.send(player, "npc.enhancement-success", "level", newLevel);
+    }
+
+    private void levelUpWeapon(Player player, NpcData data) {
+        ItemStack weapon = player.getInventory().getItemInMainHand();
+        if (itemApi.identifyWeapon(weapon).isEmpty()) {
+            messages.send(player, "npc.weapon-levelup-need-weapon");
+            return;
+        }
+        int currentLevel = itemApi.getWeaponLevel(weapon);
+        int cap = itemApi.getWeaponLevelCap(player.getUniqueId());
+        if (currentLevel >= cap) {
+            messages.send(player, "npc.weapon-levelup-cap-reached", "level", currentLevel);
+            return;
+        }
+        Material material;
+        try {
+            material = Material.valueOf(data.getWeaponLevelupItemMaterial().trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return; // misconfigured npc.yml entry - fail closed
+        }
+        int amount = data.getWeaponLevelupItemAmount();
+        if (!player.getInventory().containsAtLeast(new ItemStack(material), amount)) {
+            messages.send(player, "npc.weapon-levelup-insufficient-material", "amount", amount, "material", material);
+            return;
+        }
+        double cost = data.getWeaponLevelupCostBase() + data.getWeaponLevelupCostPerLevel() * currentLevel;
+        if (economy == null || !economy.has(player, cost)) {
+            messages.send(player, "npc.weapon-levelup-insufficient-money", "cost", cost);
+            return;
+        }
+        player.getInventory().removeItem(new ItemStack(material, amount));
+        economy.withdrawPlayer(player, cost);
+        int newLevel = itemApi.levelUpWeapon(player.getUniqueId(), weapon);
+        if (newLevel < 0) {
+            // shouldn't happen given the pre-check above, but don't silently swallow a real failure
+            messages.send(player, "npc.weapon-levelup-cap-reached", "level", currentLevel);
+            return;
+        }
+        itemApi.refreshWeaponLore(weapon);
+        messages.send(player, "npc.weapon-levelup-success", "level", newLevel);
     }
 
     private void sendDialogue(Player player, NpcData data) {

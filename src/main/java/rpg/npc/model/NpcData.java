@@ -9,9 +9,10 @@ import java.util.List;
  * Static NPC definition loaded from {@code npc.yml} (SOW section 12). Which fields are
  * meaningful depends on {@link #getType()}: shop NPCs use {@link #getShopStock()}, the
  * quest receptionist uses {@link #getQuestIds()}, the enhancement NPC uses the enhance-
- * cost fields, and every type can show {@link #getDialogueLines()} plus an optional
- * alternate line when the player holds {@link #getConditionalItemId()} ("アイテム所持で
- * 会話変化").
+ * cost fields, the weapon-levelup NPC uses the weapon-levelup fields (a plain vanilla
+ * material + amount, plus a cost that scales the same way enhancement's does), and every
+ * type can show {@link #getDialogueLines()} plus an optional alternate line when the player
+ * holds {@link #getConditionalItemId()} ("アイテム所持で会話変化").
  */
 public final class NpcData {
 
@@ -31,10 +32,16 @@ public final class NpcData {
     private final List<String> questIds;
     private final double enhancementCostBase;
     private final double enhancementCostPerLevel;
+    private final String weaponLevelupItemMaterial;
+    private final int weaponLevelupItemAmount;
+    private final double weaponLevelupCostBase;
+    private final double weaponLevelupCostPerLevel;
 
     public NpcData(String id, String name, NpcType type, EntityType entityType, String world, double x, double y, double z,
                    float yaw, List<String> dialogueLines, String conditionalItemId, List<String> conditionalDialogueLines,
-                   List<ShopEntry> shopStock, List<String> questIds, double enhancementCostBase, double enhancementCostPerLevel) {
+                   List<ShopEntry> shopStock, List<String> questIds, double enhancementCostBase, double enhancementCostPerLevel,
+                   String weaponLevelupItemMaterial, int weaponLevelupItemAmount, double weaponLevelupCostBase,
+                   double weaponLevelupCostPerLevel) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -51,6 +58,10 @@ public final class NpcData {
         this.questIds = questIds;
         this.enhancementCostBase = enhancementCostBase;
         this.enhancementCostPerLevel = enhancementCostPerLevel;
+        this.weaponLevelupItemMaterial = weaponLevelupItemMaterial;
+        this.weaponLevelupItemAmount = weaponLevelupItemAmount;
+        this.weaponLevelupCostBase = weaponLevelupCostBase;
+        this.weaponLevelupCostPerLevel = weaponLevelupCostPerLevel;
     }
 
     public String getId() {
@@ -115,5 +126,21 @@ public final class NpcData {
 
     public double getEnhancementCostPerLevel() {
         return enhancementCostPerLevel;
+    }
+
+    public String getWeaponLevelupItemMaterial() {
+        return weaponLevelupItemMaterial;
+    }
+
+    public int getWeaponLevelupItemAmount() {
+        return weaponLevelupItemAmount;
+    }
+
+    public double getWeaponLevelupCostBase() {
+        return weaponLevelupCostBase;
+    }
+
+    public double getWeaponLevelupCostPerLevel() {
+        return weaponLevelupCostPerLevel;
     }
 }
