@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -72,6 +73,25 @@ public final class PlayerInfoItemListener implements Listener {
         }
         event.setCancelled(true);
         Player player = event.getPlayer();
+        guiManager.open(player, guiScreen.build(player));
+    }
+
+    /**
+     * Right-clicking an entity (an NPC, a mob, another player, ...) never fires
+     * {@link PlayerInteractEvent} - Bukkit routes it through this event instead - so without
+     * this handler, opening the menu while facing any entity silently did nothing and the
+     * item behaved like a plain Nether Star.
+     */
+    @EventHandler
+    public void onInteractEntity(PlayerInteractEntityEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+        Player player = event.getPlayer();
+        if (!itemService.isPlayerInfoItem(player.getInventory().getItemInMainHand())) {
+            return;
+        }
+        event.setCancelled(true);
         guiManager.open(player, guiScreen.build(player));
     }
 
