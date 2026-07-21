@@ -8,6 +8,7 @@ import rpg.api.CombatApi;
 import rpg.api.ItemApi;
 import rpg.api.SkillApi;
 import rpg.api.StatusApi;
+import rpg.core.command.CommandAliasUtil;
 import rpg.database.manager.DatabaseManager;
 import rpg.quest.command.QuestCommand;
 import rpg.quest.gui.QuestGuiScreen;
@@ -74,9 +75,11 @@ public final class QuestModule implements WorldModule {
 
         plugin.getServer().getPluginManager().registerEvents(new QuestKillListener(combatApi, progressService), plugin);
 
-        plugin.getPlayerCommandRegistry().register("quest",
-                new QuestCommand(plugin.getPlayerDataManager(), plugin.getMessageManager()),
+        QuestCommand questCommand = new QuestCommand(plugin.getPlayerDataManager(), plugin.getMessageManager());
+        plugin.getPlayerCommandRegistry().register("quest", questCommand,
                 "クエストの受注状況を確認します。", "quest <list|abandon <id>>");
+        CommandAliasUtil.registerAlias(plugin, "quest", questCommand,
+                "クエストの受注状況を確認します。", "<list|abandon <id>>");
 
         long periodTicks = plugin.getConfigManager().get("config.yml").get().getLong("quest.objective-check-period-ticks", 40L);
         plugin.getSchedulerService().runTimer(() ->
