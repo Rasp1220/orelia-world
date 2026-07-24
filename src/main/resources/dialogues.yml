@@ -1,6 +1,7 @@
 # Dialogue trees (SOW DialogueModule). entry-points are evaluated in order; the first
 # whose required-flag the player already has (or which has none) wins. Nodes without
 # choices either fall through to next-node or end the conversation.
+config-version: 1
 
 dialogues:
   quest_receptionist_intro:

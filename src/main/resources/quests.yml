@@ -5,6 +5,7 @@
 # vanilla Material name for the item objectives. REACH_LOCATION ignores target-id and uses world/x/y/z/radius.
 # cooldown-hours: only meaningful when repeatable is true - how long after completion before
 # the quest can be re-accepted (default 0 = instantly re-acceptable).
+config-version: 1
 
 quests:
   slime_cull:

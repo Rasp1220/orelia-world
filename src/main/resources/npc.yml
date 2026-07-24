@@ -4,6 +4,7 @@
 # shop-stock kind: WEAPON | ACCESSORY | VANILLA
 # weapon-levelup-item-material: a vanilla Material name consumed (with weapon-levelup-item-amount)
 # alongside weapon-levelup-cost-base + weapon-levelup-cost-per-level * currentLevel money.
+config-version: 1
 
 npcs:
   weapon_merchant:
