@@ -22,11 +22,13 @@ public final class PlayerQuestComponent implements PlayerDataComponent {
     private final Map<String, PlayerQuestProgress> activeQuests = new ConcurrentHashMap<>();
     private final Map<String, Instant> completedQuests;
     private final Set<String> titles;
+    private String equippedTitle;
 
-    public PlayerQuestComponent(UUID owner, Map<String, Instant> completedQuests, Set<String> titles) {
+    public PlayerQuestComponent(UUID owner, Map<String, Instant> completedQuests, Set<String> titles, String equippedTitle) {
         this.owner = owner;
         this.completedQuests = new HashMap<>(completedQuests);
         this.titles = new HashSet<>(titles);
+        this.equippedTitle = equippedTitle;
     }
 
     @Override
@@ -71,5 +73,15 @@ public final class PlayerQuestComponent implements PlayerDataComponent {
 
     public Set<String> getTitles() {
         return Set.copyOf(titles);
+    }
+
+    /** The title currently shown in chat/tab-list (see orelia-serverutil's {@code {title}} placeholder), or {@code null} if none is equipped. */
+    public String getEquippedTitle() {
+        return equippedTitle;
+    }
+
+    /** {@code null} unequips. Does not validate that {@code title} was actually earned - callers (e.g. {@code TitleCommand}) check {@link #getTitles()} first. */
+    public void setEquippedTitle(String title) {
+        this.equippedTitle = title;
     }
 }

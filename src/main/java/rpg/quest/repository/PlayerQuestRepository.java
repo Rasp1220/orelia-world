@@ -58,6 +58,12 @@ public final class PlayerQuestRepository implements SchemaOwner {
                         PRIMARY KEY (uuid, quest_id)
                     )
                     """);
+            statement.execute("""
+                    CREATE TABLE IF NOT EXISTS quest_title_equipped (
+                        uuid VARCHAR(36) PRIMARY KEY,
+                        title VARCHAR(64) NOT NULL
+                    )
+                    """);
         }
     }
 
@@ -88,7 +94,20 @@ public final class PlayerQuestRepository implements SchemaOwner {
             throw new IllegalStateException("Failed to load titles for " + uuid, e);
         }
 
-        PlayerQuestComponent component = new PlayerQuestComponent(uuid, completed, titles);
+        String equippedTitle = null;
+        try (Connection connection = databaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT title FROM quest_title_equipped WHERE uuid = ?")) {
+            statement.setString(1, uuid.toString());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    equippedTitle = resultSet.getString("title");
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to load equipped title for " + uuid, e);
+        }
+
+        PlayerQuestComponent component = new PlayerQuestComponent(uuid, completed, titles, equippedTitle);
 
         try (Connection connection = databaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT quest_id, state, progress FROM quest_progress WHERE uuid = ?")) {
@@ -124,6 +143,7 @@ public final class PlayerQuestRepository implements SchemaOwner {
             for (String title : component.getTitles()) {
                 upsertTitle(connection, component.getOwner(), title);
             }
+            saveEquippedTitle(connection, component.getOwner(), component.getEquippedTitle());
             try (PreparedStatement delete = connection.prepareStatement("DELETE FROM quest_progress WHERE uuid = ?")) {
                 delete.setString(1, component.getOwner().toString());
                 delete.executeUpdate();
@@ -145,6 +165,25 @@ public final class PlayerQuestRepository implements SchemaOwner {
             statement.setString(1, uuid.toString());
             statement.setString(2, questId);
             statement.setLong(3, completedAtEpochMillis);
+            statement.executeUpdate();
+        }
+    }
+
+    private void saveEquippedTitle(Connection connection, UUID uuid, String equippedTitle) throws SQLException {
+        if (equippedTitle == null) {
+            try (PreparedStatement statement = connection.prepareStatement("DELETE FROM quest_title_equipped WHERE uuid = ?")) {
+                statement.setString(1, uuid.toString());
+                statement.executeUpdate();
+            }
+            return;
+        }
+        String sql = switch (databaseManager.getType()) {
+            case SQLITE -> "INSERT INTO quest_title_equipped (uuid, title) VALUES (?, ?) ON CONFLICT(uuid) DO UPDATE SET title = excluded.title";
+            case MYSQL -> "INSERT INTO quest_title_equipped (uuid, title) VALUES (?, ?) ON DUPLICATE KEY UPDATE title = VALUES(title)";
+        };
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, uuid.toString());
+            statement.setString(2, equippedTitle);
             statement.executeUpdate();
         }
     }
