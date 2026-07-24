@@ -8,7 +8,7 @@
 # config-version tracks this file's schema. Bump it whenever a new top-level section is
 # added - on next startup, ConfigManager appends the new section (with its comments) to any
 # existing messages.yml that's missing it, without touching anything you've already customized.
-config-version: 1
+config-version: 2
 
 prefix: "&%8[&%6Orelia&%8] &r"
 
@@ -66,6 +66,34 @@ npc:
     list-header: "&%aNPC一覧 &%7({page}/{total}ページ)"
     list-entry: "&%7- {id} [{type}] @ {world} {x},{y},{z}"
     spawned-all: "&%anpc.ymlに設定済みで、まだ出現していないNPCをすべて設置しました。"
+
+dungeon:
+  usage: "&%e使い方: /ol dungeon &%7[&%elist&%7]&%e&%7|&%estart &%7<&%eid&%7>&%e&%7|&%eretire&%e"
+  data-not-loaded: "&%cダンジョンデータがまだ読み込まれていません。"
+  unlocked: "&%aダンジョン「{dungeon}」を発見しました！もう一度クリックするか /ol dungeon で挑戦できます。"
+  challenge-started: "&%aダンジョン「{dungeon}」に挑戦を開始しました！"
+  challenge-failed:
+    not_unlocked: "&%cこのダンジョンはまだ発見していません。"
+    unknown_dungeon: "&%c不明なダンジョンです。"
+    party_too_small: "&%c挑戦に必要な人数が足りません。"
+    party_too_large: "&%c挑戦できる人数の上限を超えています。"
+    world_not_found: "&%cダンジョンのワールドが見つかりません。"
+    already_in_dungeon: "&%c既にダンジョンに挑戦中です。"
+  cleared: "&%a&lダンジョンをクリアしました！"
+  timed-out: "&%c制限時間切れです。ダンジョンから退出しました。"
+  retired: "&%eダンジョンから離脱しました。"
+  not-in-dungeon: "&%c現在ダンジョンに挑戦していません。"
+  admin:
+    usage: "&%e使い方: /oladmin dungeonblock &%7<&%eset &%7<&%edungeon-id&%7>&%e&%7|&%eremove&%7|&%elist [page]&%7>&%e"
+    usage-set: "&%e使い方: /oladmin dungeonblock set &%7<&%edungeon-id&%7>&%e"
+    unknown-dungeon: "&%c不明なダンジョンです: {id}"
+    no-target-block: "&%c対象のブロックが見つかりません（5ブロック以内を見てください）。"
+    block-set: "&%a対象のブロックをダンジョン「{dungeon}」のトリガーとして設置しました。"
+    block-removed: "&%aこのブロックのダンジョントリガー登録を解除しました。"
+    no-block-registered: "&%cこのブロックにはダンジョントリガーが登録されていません。"
+    list-empty: "&%e登録されているダンジョントリガーブロックはありません。"
+    list-header: "&%aダンジョントリガーブロック一覧 &%7({page}/{total}ページ)"
+    list-entry: "&%7- {dungeon} @ {world} {x},{y},{z}"
 
 admin:
   reloaded: "&%aOrelia World の設定を再読み込みしました。"

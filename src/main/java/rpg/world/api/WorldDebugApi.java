@@ -46,4 +46,23 @@ public interface WorldDebugApi {
 
     /** Every configured NPC id, sorted - for a "debug npc show" style listing. */
     List<String> listNpcIds();
+
+    /** Every dungeon id defined in {@code dungeons.yml}, sorted. */
+    List<String> listDungeonIds();
+
+    /** Unlocks {@code dungeonId} for {@code playerId}, bypassing the trigger-block discovery flow. */
+    boolean unlockDungeonForPlayer(UUID playerId, String dungeonId);
+
+    /**
+     * Force-starts a solo run of {@code dungeonId} for {@code playerId}, bypassing the unlock
+     * check. Still subject to the dungeon's {@code min-party-size} (a solo player is the whole
+     * party). Returns empty on success, or a failure reason on failure.
+     */
+    Optional<String> forceStartDungeon(UUID playerId, String dungeonId);
+
+    /** Force-ends whichever dungeon run {@code playerId} is currently in, as a retire (no rewards). */
+    boolean forceEndDungeon(UUID playerId);
+
+    /** The dungeon id of the run {@code playerId} is currently in, if any. */
+    Optional<String> getActiveDungeonId(UUID playerId);
 }

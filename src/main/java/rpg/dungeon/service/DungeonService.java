@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import rpg.api.StatusApi;
 import rpg.dungeon.manager.DungeonInstanceManager;
 import rpg.dungeon.model.DungeonData;
+import rpg.dungeon.model.DungeonEndReason;
 import rpg.dungeon.model.DungeonInstance;
 import rpg.dungeon.model.DungeonInstanceStatus;
 import rpg.dungeon.repository.DungeonRepository;
@@ -71,13 +72,17 @@ public final class DungeonService {
         return Optional.empty();
     }
 
-    /** Ends the run the given player is in (if any), rewarding the whole party on success. */
-    public void finish(UUID playerId, boolean success) {
+    /** Ends the run the given player is in (if any), rewarding the whole party only when {@code reason} is {@link DungeonEndReason#CLEARED}. */
+    public void finish(UUID playerId, DungeonEndReason reason) {
         DungeonInstance instance = instanceManager.getByPlayer(playerId).orElse(null);
         if (instance == null) {
             return;
         }
-        instance.setStatus(success ? DungeonInstanceStatus.COMPLETED : DungeonInstanceStatus.FAILED);
+        instance.setStatus(switch (reason) {
+            case CLEARED -> DungeonInstanceStatus.COMPLETED;
+            case TIMED_OUT -> DungeonInstanceStatus.FAILED;
+            case RETIRED -> DungeonInstanceStatus.RETIRED;
+        });
 
         for (var entry : instance.getMembers().entrySet()) {
             UUID memberId = entry.getKey();
@@ -85,7 +90,7 @@ public final class DungeonService {
             Player member = Bukkit.getPlayer(memberId);
             if (member != null) {
                 member.teleport(returnLocation);
-                if (success) {
+                if (reason == DungeonEndReason.CLEARED) {
                     statusApi.addExperience(memberId, instance.getData().getRewardExp());
                     if (economy != null) {
                         economy.depositPlayer(member, instance.getData().getRewardMoney());
