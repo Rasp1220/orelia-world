@@ -11,6 +11,7 @@ import rpg.api.StatusApi;
 import rpg.core.command.CommandAliasUtil;
 import rpg.database.manager.DatabaseManager;
 import rpg.quest.command.QuestCommand;
+import rpg.quest.command.TitleCommand;
 import rpg.quest.gui.QuestGuiScreen;
 import rpg.quest.listener.QuestKillListener;
 import rpg.quest.manager.QuestManager;
@@ -82,6 +83,11 @@ public final class QuestModule implements WorldModule {
                 "クエストの受注状況を確認します。", "quest <list|abandon <id>>");
         CommandAliasUtil.registerAlias(plugin, "quest", questCommand,
                 "クエストの受注状況を確認します。", "<list|abandon <id>>");
+
+        TitleCommand titleCommand = new TitleCommand(plugin.getPlayerDataManager(), plugin.getMessageManager());
+        String titleDescription = "獲得済みの称号を確認・装備します。";
+        plugin.getPlayerCommandRegistry().register("title", titleCommand, titleDescription, "title <list|equip <title>|unequip>");
+        CommandAliasUtil.registerAlias(plugin, "title", titleCommand, titleDescription, "<list|equip <title>|unequip>");
 
         long periodTicks = plugin.getConfigManager().get("config.yml").get().getLong("quest.objective-check-period-ticks", 40L);
         plugin.getSchedulerService().runTimer(() ->

@@ -1,5 +1,6 @@
 package rpg.world.api;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,4 +16,13 @@ public interface QuestApi {
 
     /** Whether the player has ever completed the given quest id. */
     boolean hasCompletedQuest(UUID playerId, String questId);
+
+    /** The title currently equipped (see {@code /ol title equip}), shown by e.g. orelia-serverutil's {@code {title}} placeholder. Empty if none is equipped. */
+    Optional<String> getEquippedTitle(UUID playerId);
+
+    /** Every title this player has ever earned as a quest reward. */
+    Set<String> getEarnedTitles(UUID playerId);
+
+    /** Equips {@code title} as the player's displayed title. Returns false if the player hasn't earned it, or their data isn't loaded. */
+    boolean equipTitle(UUID playerId, String title);
 }
