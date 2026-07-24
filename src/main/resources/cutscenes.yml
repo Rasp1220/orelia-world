@@ -1,5 +1,6 @@
 # Cutscene definitions (SOW CutSceneModule). step type: CAMERA | MESSAGE | EFFECT | TITLE
 # delay-ticks is relative to when playback starts (20 ticks = 1 second).
+config-version: 1
 
 cutscenes:
   goblin_king_intro:

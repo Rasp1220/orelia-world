@@ -1,6 +1,7 @@
 # Story progression (SOW StoryModule). Chapters unlock in "order" once their
 # required-flags are all held (set via quest rewards, dialogue choices, etc. through the
 # story/dialogue flag services). Endings unlock the same way.
+config-version: 1
 
 chapters:
   chapter_1:

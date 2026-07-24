@@ -2,6 +2,7 @@
 # window (start/end as --MM-DD, MonthDay.parse format) and repeats every year - typical for
 # SEASONAL events. recurring: false uses an explicit one-off ISO-8601 start/end - typical
 # for LIMITED events.
+config-version: 1
 
 events:
   halloween:

@@ -1,4 +1,5 @@
 # Dungeon definitions (SOW section 15). type: NORMAL | STORY | RAID | SOLO | PARTY
+config-version: 1
 
 dungeons:
   goblin_cave:
