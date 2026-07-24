@@ -70,6 +70,36 @@ final class WorldDebugApiImpl implements WorldDebugApi {
     }
 
     @Override
+    public boolean forceStartQuest(UUID playerId, String questId) {
+        return questProgressService.forceStartQuest(playerId, questId);
+    }
+
+    @Override
+    public boolean resetQuestCompletion(UUID playerId, String questId) {
+        return questProgressService.resetCompletion(playerId, questId);
+    }
+
+    @Override
+    public List<String> listQuestIds() {
+        return questProgressService.listQuestIds().stream().sorted().toList();
+    }
+
+    @Override
+    public boolean grantTitle(UUID playerId, String title) {
+        return questProgressService.grantTitle(playerId, title);
+    }
+
+    @Override
+    public boolean forceEquipTitle(UUID playerId, String title) {
+        return questProgressService.forceEquipTitle(playerId, title);
+    }
+
+    @Override
+    public boolean unequipTitle(UUID playerId) {
+        return questProgressService.unequipTitle(playerId);
+    }
+
+    @Override
     public List<String> listNpcIds() {
         return npcRepository.getAll().keySet().stream().sorted().toList();
     }
