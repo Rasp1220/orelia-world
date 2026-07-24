@@ -15,6 +15,7 @@ public final class DungeonInstanceManager {
 
     private final Map<UUID, DungeonInstance> instances = new ConcurrentHashMap<>();
     private final Map<UUID, UUID> playerToInstance = new ConcurrentHashMap<>();
+    private final Map<UUID, UUID> monsterToInstance = new ConcurrentHashMap<>();
 
     public void register(DungeonInstance instance) {
         instances.put(instance.getId(), instance);
@@ -25,10 +26,19 @@ public final class DungeonInstanceManager {
         return Optional.ofNullable(playerToInstance.get(playerId)).map(instances::get);
     }
 
+    public void registerMonster(UUID entityId, UUID instanceId) {
+        monsterToInstance.put(entityId, instanceId);
+    }
+
+    public Optional<DungeonInstance> getByMonster(UUID entityId) {
+        return Optional.ofNullable(monsterToInstance.get(entityId)).map(instances::get);
+    }
+
     public void remove(UUID instanceId) {
         DungeonInstance instance = instances.remove(instanceId);
         if (instance != null) {
             instance.getMembers().keySet().forEach(playerToInstance::remove);
+            instance.getAliveMonsterIds().forEach(monsterToInstance::remove);
         }
     }
 

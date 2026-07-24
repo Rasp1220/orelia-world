@@ -83,8 +83,8 @@ public final class OreliaWorldPlugin extends JavaPlugin {
         moduleManager.register(new StoryModule());
         moduleManager.register(new EventModule());
         moduleManager.register(new CutSceneModule());
-        moduleManager.register(new DungeonModule());
         moduleManager.register(new QuestModule());
+        moduleManager.register(new DungeonModule());
         moduleManager.register(new NpcModule());
         moduleManager.register(new PlayerInfoModule());
         moduleManager.register(new WorldApiModule());

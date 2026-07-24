@@ -1,5 +1,10 @@
 # Dungeon definitions (SOW section 15). type: NORMAL | STORY | RAID | SOLO | PARTY
-config-version: 1
+#
+# enemies: monsters.yml ids -> count that must be killed to clear the dungeon.
+# boss-id: optional bosses.yml id, spawned alongside the enemies. Omit for a boss-less dungeon.
+# time-limit-seconds: killing every enemy (and the boss, if any) within this limit clears the
+#   dungeon and grants reward-exp/reward-money; running out of time force-exits with no reward.
+config-version: 2
 
 dungeons:
   goblin_cave:
@@ -13,6 +18,11 @@ dungeons:
     z: 100
     reward-exp: 150
     reward-money: 80
+    enemies:
+      goblin_raider: 5
+      skeletal_archer: 3
+    boss-id: goblin_king_boss
+    time-limit-seconds: 300
 
   trial_of_the_swordsman:
     name: "剣士の試練"
@@ -25,6 +35,9 @@ dungeons:
     z: 200
     reward-exp: 80
     reward-money: 40
+    enemies:
+      forest_slime: 3
+    time-limit-seconds: 180
 
   raid_dragons_lair:
     name: "竜の巣窟"
@@ -37,3 +50,8 @@ dungeons:
     z: 300
     reward-exp: 1000
     reward-money: 500
+    enemies:
+      goblin_raider: 8
+      skeletal_archer: 5
+    boss-id: flame_lord_boss
+    time-limit-seconds: 600

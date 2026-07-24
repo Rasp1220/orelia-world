@@ -1,7 +1,13 @@
 package rpg.world.api;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import rpg.core.config.ConfigFile;
 import rpg.core.config.ConfigManager;
+import rpg.core.player.PlayerDataManager;
+import rpg.dungeon.model.PlayerDungeonComponent;
+import rpg.dungeon.repository.DungeonRepository;
+import rpg.dungeon.service.DungeonEncounterService;
 import rpg.npc.repository.NpcRepository;
 import rpg.quest.service.QuestProgressService;
 
@@ -15,11 +21,19 @@ final class WorldDebugApiImpl implements WorldDebugApi {
     private final ConfigManager configManager;
     private final QuestProgressService questProgressService;
     private final NpcRepository npcRepository;
+    private final DungeonRepository dungeonRepository;
+    private final DungeonEncounterService dungeonEncounterService;
+    private final PlayerDataManager playerDataManager;
 
-    WorldDebugApiImpl(ConfigManager configManager, QuestProgressService questProgressService, NpcRepository npcRepository) {
+    WorldDebugApiImpl(ConfigManager configManager, QuestProgressService questProgressService, NpcRepository npcRepository,
+                       DungeonRepository dungeonRepository, DungeonEncounterService dungeonEncounterService,
+                       PlayerDataManager playerDataManager) {
         this.configManager = configManager;
         this.questProgressService = questProgressService;
         this.npcRepository = npcRepository;
+        this.dungeonRepository = dungeonRepository;
+        this.dungeonEncounterService = dungeonEncounterService;
+        this.playerDataManager = playerDataManager;
     }
 
     @Override
@@ -102,6 +116,42 @@ final class WorldDebugApiImpl implements WorldDebugApi {
     @Override
     public List<String> listNpcIds() {
         return npcRepository.getAll().keySet().stream().sorted().toList();
+    }
+
+    @Override
+    public List<String> listDungeonIds() {
+        return dungeonRepository.getAll().keySet().stream().sorted().toList();
+    }
+
+    @Override
+    public boolean unlockDungeonForPlayer(UUID playerId, String dungeonId) {
+        PlayerDungeonComponent component = playerDataManager.get(playerId)
+                .flatMap(d -> d.component(PlayerDungeonComponent.class)).orElse(null);
+        if (component == null || dungeonRepository.findById(dungeonId).isEmpty()) {
+            return false;
+        }
+        component.unlock(dungeonId);
+        return true;
+    }
+
+    @Override
+    public Optional<String> forceStartDungeon(UUID playerId, String dungeonId) {
+        Player player = Bukkit.getPlayer(playerId);
+        if (player == null) {
+            return Optional.of("PLAYER_OFFLINE");
+        }
+        return dungeonEncounterService.forceStart(player, dungeonId).map(Enum::name);
+    }
+
+    @Override
+    public boolean forceEndDungeon(UUID playerId) {
+        Player player = Bukkit.getPlayer(playerId);
+        return player != null && dungeonEncounterService.retire(player);
+    }
+
+    @Override
+    public Optional<String> getActiveDungeonId(UUID playerId) {
+        return dungeonEncounterService.getActiveDungeonId(playerId);
     }
 
     private ConfigFile tryGet(String fileName) {

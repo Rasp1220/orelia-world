@@ -1,5 +1,7 @@
 package rpg.dungeon.model;
 
+import java.util.Map;
+
 /**
  * Static dungeon definition loaded from {@code dungeons.yml}. The entry point is a plain
  * world/coordinate rather than a generated instance - each dungeon is a physical area
@@ -18,9 +20,13 @@ public final class DungeonData {
     private final double z;
     private final long rewardExp;
     private final double rewardMoney;
+    private final Map<String, Integer> enemies;
+    private final String bossId;
+    private final int timeLimitSeconds;
 
     public DungeonData(String id, String name, DungeonType type, int minPartySize, int maxPartySize,
-                        String world, double x, double y, double z, long rewardExp, double rewardMoney) {
+                        String world, double x, double y, double z, long rewardExp, double rewardMoney,
+                        Map<String, Integer> enemies, String bossId, int timeLimitSeconds) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -32,6 +38,9 @@ public final class DungeonData {
         this.z = z;
         this.rewardExp = rewardExp;
         this.rewardMoney = rewardMoney;
+        this.enemies = Map.copyOf(enemies);
+        this.bossId = bossId;
+        this.timeLimitSeconds = timeLimitSeconds;
     }
 
     public String getId() {
@@ -76,5 +85,19 @@ public final class DungeonData {
 
     public double getRewardMoney() {
         return rewardMoney;
+    }
+
+    /** monsters.yml id -> count required to clear. Empty if this dungeon has no regular enemies (boss-only). */
+    public Map<String, Integer> getEnemies() {
+        return enemies;
+    }
+
+    /** bosses.yml id, or {@code null} if this dungeon has no boss. */
+    public String getBossId() {
+        return bossId;
+    }
+
+    public int getTimeLimitSeconds() {
+        return timeLimitSeconds;
     }
 }

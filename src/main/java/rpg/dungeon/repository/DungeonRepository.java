@@ -43,7 +43,20 @@ public final class DungeonRepository {
                 section.getDouble("y", 64),
                 section.getDouble("z", 0),
                 section.getLong("reward-exp", 0),
-                section.getDouble("reward-money", 0));
+                section.getDouble("reward-money", 0),
+                parseEnemies(section.getConfigurationSection("enemies")),
+                section.getString("boss-id", null),
+                section.getInt("time-limit-seconds", 300));
+    }
+
+    private Map<String, Integer> parseEnemies(ConfigurationSection enemiesSection) {
+        Map<String, Integer> enemies = new LinkedHashMap<>();
+        if (enemiesSection != null) {
+            for (String monsterId : enemiesSection.getKeys(false)) {
+                enemies.put(monsterId, enemiesSection.getInt(monsterId));
+            }
+        }
+        return enemies;
     }
 
     public Optional<DungeonData> findById(String id) {
