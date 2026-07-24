@@ -3,6 +3,8 @@
 # objective type: KILL_MONSTER | COLLECT_ITEM | DELIVER_ITEM | REACH_LOCATION | TALK_NPC | KILL_BOSS | CLEAR_DUNGEON
 # target-id is a monsters.yml/bosses.yml/npc.yml/dungeons.yml id, or an items.yml weapon id /
 # vanilla Material name for the item objectives. REACH_LOCATION ignores target-id and uses world/x/y/z/radius.
+# cooldown-hours: only meaningful when repeatable is true - how long after completion before
+# the quest can be re-accepted (default 0 = instantly re-acceptable).
 
 quests:
   slime_cull:
@@ -53,6 +55,7 @@ quests:
     type: DAILY
     required-level: 1
     repeatable: true
+    cooldown-hours: 24
     party-only: false
     prerequisite-quests: []
     description:

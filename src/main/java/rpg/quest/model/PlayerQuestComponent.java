@@ -2,26 +2,30 @@ package rpg.quest.model;
 
 import rpg.core.player.PlayerDataComponent;
 
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Per-player quest log: active quest progress, ever-completed quest ids (used for both
- * "one-time only" enforcement and prerequisite checks), and earned titles.
+ * Per-player quest log: active quest progress, ever-completed quests (id -> last completed
+ * timestamp, used for "one-time only" enforcement, prerequisite checks, and repeatable-quest
+ * cooldowns), and earned titles.
  */
 public final class PlayerQuestComponent implements PlayerDataComponent {
 
     private final UUID owner;
     private final Map<String, PlayerQuestProgress> activeQuests = new ConcurrentHashMap<>();
-    private final Set<String> completedQuestIds;
+    private final Map<String, Instant> completedQuests;
     private final Set<String> titles;
 
-    public PlayerQuestComponent(UUID owner, Set<String> completedQuestIds, Set<String> titles) {
+    public PlayerQuestComponent(UUID owner, Map<String, Instant> completedQuests, Set<String> titles) {
         this.owner = owner;
-        this.completedQuestIds = new HashSet<>(completedQuestIds);
+        this.completedQuests = new HashMap<>(completedQuests);
         this.titles = new HashSet<>(titles);
     }
 
@@ -40,15 +44,23 @@ public final class PlayerQuestComponent implements PlayerDataComponent {
 
     public void completeQuest(String questId) {
         activeQuests.remove(questId);
-        completedQuestIds.add(questId);
+        completedQuests.put(questId, Instant.now());
     }
 
     public boolean hasCompleted(String questId) {
-        return completedQuestIds.contains(questId);
+        return completedQuests.containsKey(questId);
+    }
+
+    public Optional<Instant> getLastCompletedAt(String questId) {
+        return Optional.ofNullable(completedQuests.get(questId));
     }
 
     public Set<String> getCompletedQuestIds() {
-        return Set.copyOf(completedQuestIds);
+        return Set.copyOf(completedQuests.keySet());
+    }
+
+    public Map<String, Instant> getCompletedQuestsWithTimestamps() {
+        return Map.copyOf(completedQuests);
     }
 
     public void addTitle(String title) {

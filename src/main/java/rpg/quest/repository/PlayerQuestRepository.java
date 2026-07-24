@@ -11,6 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -60,13 +62,13 @@ public final class PlayerQuestRepository implements SchemaOwner {
     }
 
     public PlayerQuestComponent loadOrCreate(UUID uuid) {
-        Set<String> completed = new HashSet<>();
+        Map<String, Instant> completed = new HashMap<>();
         try (Connection connection = databaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT quest_id FROM quest_completed WHERE uuid = ?")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT quest_id, completed_at FROM quest_completed WHERE uuid = ?")) {
             statement.setString(1, uuid.toString());
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    completed.add(resultSet.getString("quest_id"));
+                    completed.put(resultSet.getString("quest_id"), Instant.ofEpochMilli(resultSet.getLong("completed_at")));
                 }
             }
         } catch (SQLException e) {
@@ -116,8 +118,8 @@ public final class PlayerQuestRepository implements SchemaOwner {
 
     public void save(PlayerQuestComponent component) {
         try (Connection connection = databaseManager.getConnection()) {
-            for (String questId : component.getCompletedQuestIds()) {
-                upsertCompleted(connection, component.getOwner(), questId);
+            for (Map.Entry<String, Instant> entry : component.getCompletedQuestsWithTimestamps().entrySet()) {
+                upsertCompleted(connection, component.getOwner(), entry.getKey(), entry.getValue().toEpochMilli());
             }
             for (String title : component.getTitles()) {
                 upsertTitle(connection, component.getOwner(), title);
@@ -134,15 +136,15 @@ public final class PlayerQuestRepository implements SchemaOwner {
         }
     }
 
-    private void upsertCompleted(Connection connection, UUID uuid, String questId) throws SQLException {
+    private void upsertCompleted(Connection connection, UUID uuid, String questId, long completedAtEpochMillis) throws SQLException {
         String sql = switch (databaseManager.getType()) {
-            case SQLITE -> "INSERT INTO quest_completed (uuid, quest_id, completed_at) VALUES (?, ?, ?) ON CONFLICT(uuid, quest_id) DO NOTHING";
-            case MYSQL -> "INSERT IGNORE INTO quest_completed (uuid, quest_id, completed_at) VALUES (?, ?, ?)";
+            case SQLITE -> "INSERT INTO quest_completed (uuid, quest_id, completed_at) VALUES (?, ?, ?) ON CONFLICT(uuid, quest_id) DO UPDATE SET completed_at = excluded.completed_at";
+            case MYSQL -> "INSERT INTO quest_completed (uuid, quest_id, completed_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE completed_at = VALUES(completed_at)";
         };
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, uuid.toString());
             statement.setString(2, questId);
-            statement.setLong(3, System.currentTimeMillis());
+            statement.setLong(3, completedAtEpochMillis);
             statement.executeUpdate();
         }
     }

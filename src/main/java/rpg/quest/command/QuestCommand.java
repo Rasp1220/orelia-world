@@ -7,23 +7,33 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import rpg.core.message.MessageManager;
 import rpg.core.player.PlayerDataManager;
+import rpg.quest.gui.QuestObjectiveBarRenderer;
 import rpg.quest.model.PlayerQuestComponent;
-import rpg.quest.model.QuestState;
+import rpg.quest.model.PlayerQuestProgress;
+import rpg.quest.model.QuestData;
+import rpg.quest.model.QuestObjective;
+import rpg.quest.repository.QuestRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code /ol quest list} - shows the sender's active quests and their state.
- * {@code /ol quest abandon <id>} - drops an in-progress quest without rewards.
+ * {@code /ol quest list} - shows the sender's active quests, their state, and a progress
+ * bar per objective. {@code /ol quest abandon <id>} - drops an in-progress quest without
+ * rewards.
  */
 public final class QuestCommand implements CommandExecutor, TabCompleter {
 
-    private final PlayerDataManager playerDataManager;
-    private final MessageManager messages;
+    private static final int BAR_LENGTH = 10;
 
-    public QuestCommand(PlayerDataManager playerDataManager, MessageManager messages) {
+    private final PlayerDataManager playerDataManager;
+    private final QuestRepository questRepository;
+    private final MessageManager messages;
+    private final QuestObjectiveBarRenderer barRenderer = new QuestObjectiveBarRenderer();
+
+    public QuestCommand(PlayerDataManager playerDataManager, QuestRepository questRepository, MessageManager messages) {
         this.playerDataManager = playerDataManager;
+        this.questRepository = questRepository;
         this.messages = messages;
     }
 
@@ -57,8 +67,21 @@ public final class QuestCommand implements CommandExecutor, TabCompleter {
         }
         messages.send(sender, "quest.active-header");
         for (var entry : component.getActiveQuests().entrySet()) {
-            QuestState state = entry.getValue().getState();
-            messages.sendRaw(sender, "quest.active-entry", "quest", entry.getKey(), "state", state);
+            PlayerQuestProgress progress = entry.getValue();
+            messages.sendRaw(sender, "quest.active-entry", "quest", entry.getKey(), "state", progress.getState());
+            QuestData quest = questRepository.findById(entry.getKey()).orElse(null);
+            if (quest == null) {
+                continue;
+            }
+            List<QuestObjective> objectives = quest.getObjectives();
+            for (int i = 0; i < objectives.size(); i++) {
+                QuestObjective objective = objectives.get(i);
+                int current = Math.min(progress.getProgress(i), objective.getRequiredAmount());
+                String bar = barRenderer.render(current, objective.getRequiredAmount(), BAR_LENGTH, "&%a", "&%8");
+                messages.sendRaw(sender, "quest.objective-line",
+                        "type", objective.getType(), "target", objective.getTargetId(),
+                        "bar", bar, "current", current, "max", objective.getRequiredAmount());
+            }
         }
         return true;
     }

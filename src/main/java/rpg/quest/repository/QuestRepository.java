@@ -85,7 +85,8 @@ public final class QuestRepository {
                 section.getInt("required-level", 1),
                 section.getStringList("prerequisite-quests"),
                 section.getInt("available-hour-start", -1),
-                section.getInt("available-hour-end", -1));
+                section.getInt("available-hour-end", -1),
+                section.getDouble("cooldown-hours", 0));
     }
 
     public Optional<QuestData> findById(String id) {

@@ -27,3 +27,4 @@ Orelia は 3 プラグイン構成です。
 - 設定ファイル — `quests.yml`, `npc.yml`, `dungeons.yml`, `dialogues.yml`, `story.yml`, `cutscenes.yml`, `events.yml`, `config.yml`。`/oladmin worldreload` で一括リロードできます。
 - NPCは起動時に自動スポーンしません。`/oladmin npc spawnall` で `npc.yml` に設定済み・まだ出現していない全NPCをまとめて設置します(再実行しても重複しません)。職業指南役(job-change NPC)だけは対象外で、`/oladmin spawnnpc <npc-id>`(例: `/oladmin spawnnpc job_master`)で実行者の足元に個別に手動配置してください。
 - ネザースターのプレイヤー情報メニュー(スキルタブ)から orelia-core の武器スキル画面(習得・レベルアップ・武器へのスキル装着)を開けます。
+- クエスト — 前提クエスト(`quests.yml`の`prerequisite-quests`)は既存の仕組みで動作し、解放されると通知が届きます。リピート可能クエスト(`repeatable: true`)は`cooldown-hours`で再受注までの待機時間を設定できます(未設定/0は従来通り即再受注可)。`/ol quest list`には各クエストの目標ごとに進行バーが表示されます。
