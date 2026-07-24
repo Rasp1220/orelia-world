@@ -70,12 +70,14 @@ public final class QuestModule implements WorldModule {
         QuestItemInventoryService inventoryService = new QuestItemInventoryService(itemApi);
         QuestRewardService rewardService = new QuestRewardService(
                 plugin.getPlayerDataManager(), statusApi, economy, itemApi, accessoryApi, skillApi);
-        this.progressService = new QuestProgressService(plugin.getPlayerDataManager(), questRepository, eligibilityService, rewardService, inventoryService);
-        this.questGuiScreen = new QuestGuiScreen(questRepository, progressService, plugin.getPlayerDataManager(), plugin.getMessageManager());
+        this.progressService = new QuestProgressService(plugin.getPlayerDataManager(), questRepository, eligibilityService,
+                rewardService, inventoryService, plugin.getMessageManager());
+        this.questGuiScreen = new QuestGuiScreen(questRepository, progressService, eligibilityService,
+                plugin.getPlayerDataManager(), plugin.getMessageManager());
 
         plugin.getServer().getPluginManager().registerEvents(new QuestKillListener(combatApi, progressService), plugin);
 
-        QuestCommand questCommand = new QuestCommand(plugin.getPlayerDataManager(), plugin.getMessageManager());
+        QuestCommand questCommand = new QuestCommand(plugin.getPlayerDataManager(), questRepository, plugin.getMessageManager());
         plugin.getPlayerCommandRegistry().register("quest", questCommand,
                 "クエストの受注状況を確認します。", "quest <list|abandon <id>>");
         CommandAliasUtil.registerAlias(plugin, "quest", questCommand,

@@ -2,6 +2,7 @@ package rpg.quest.service;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import rpg.core.message.MessageManager;
 import rpg.core.player.PlayerDataManager;
 import rpg.quest.model.ObjectiveType;
 import rpg.quest.model.PlayerQuestComponent;
@@ -28,15 +29,17 @@ public final class QuestProgressService {
     private final QuestEligibilityService eligibilityService;
     private final QuestRewardService rewardService;
     private final QuestItemInventoryService inventoryService;
+    private final MessageManager messages;
 
     public QuestProgressService(PlayerDataManager playerDataManager, QuestRepository questRepository,
                                  QuestEligibilityService eligibilityService, QuestRewardService rewardService,
-                                 QuestItemInventoryService inventoryService) {
+                                 QuestItemInventoryService inventoryService, MessageManager messages) {
         this.playerDataManager = playerDataManager;
         this.questRepository = questRepository;
         this.eligibilityService = eligibilityService;
         this.rewardService = rewardService;
         this.inventoryService = inventoryService;
+        this.messages = messages;
     }
 
     public Optional<QuestEligibilityService.Ineligibility> accept(Player player, String questId) {
@@ -74,7 +77,18 @@ public final class QuestProgressService {
         }
         component.completeQuest(questId);
         rewardService.grant(player, quest.getReward());
+        notifyNewlyUnlockedQuests(player, questId);
         return true;
+    }
+
+    /** Tells the player about every quest that just became acceptable now that {@code completedQuestId} is done (SOW section 11 prerequisite chains). */
+    private void notifyNewlyUnlockedQuests(Player player, String completedQuestId) {
+        for (QuestData candidate : questRepository.getAll().values()) {
+            if (candidate.getPrerequisiteQuestIds().contains(completedQuestId)
+                    && eligibilityService.checkEligibility(player, candidate).isEmpty()) {
+                messages.send(player, "quest.newly-unlocked", "quest", candidate.getName());
+            }
+        }
     }
 
     /**

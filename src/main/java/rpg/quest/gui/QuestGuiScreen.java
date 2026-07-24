@@ -10,9 +10,11 @@ import rpg.quest.model.PlayerQuestComponent;
 import rpg.quest.model.QuestData;
 import rpg.quest.model.QuestState;
 import rpg.quest.repository.QuestRepository;
+import rpg.quest.service.QuestEligibilityService;
 import rpg.quest.service.QuestProgressService;
 import rpg.util.ItemBuilder;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -27,13 +29,16 @@ public final class QuestGuiScreen {
 
     private final QuestRepository questRepository;
     private final QuestProgressService progressService;
+    private final QuestEligibilityService eligibilityService;
     private final PlayerDataManager playerDataManager;
     private final MessageManager messages;
 
     public QuestGuiScreen(QuestRepository questRepository, QuestProgressService progressService,
-                           PlayerDataManager playerDataManager, MessageManager messages) {
+                           QuestEligibilityService eligibilityService, PlayerDataManager playerDataManager,
+                           MessageManager messages) {
         this.questRepository = questRepository;
         this.progressService = progressService;
+        this.eligibilityService = eligibilityService;
         this.playerDataManager = playerDataManager;
         this.messages = messages;
     }
@@ -57,12 +62,13 @@ public final class QuestGuiScreen {
             gui.set(slot++, new GuiButton(new ItemBuilder(Material.WRITABLE_BOOK)
                     .name("&%e" + quest.getName())
                     .lore(quest.getDescription())
-                    .build(), (clicker, clickType) -> handleClick(clicker, questId, state)));
+                    .build(), (clicker, clickType) -> handleClick(clicker, quest, state)));
         }
         return gui;
     }
 
-    private void handleClick(Player player, String questId, QuestState state) {
+    private void handleClick(Player player, QuestData quest, QuestState state) {
+        String questId = quest.getId();
         if (state == QuestState.AWAITING_REPORT) {
             boolean reported = progressService.report(player, questId);
             messages.send(player, reported ? "quest.completed" : "quest.report-failed");
@@ -70,6 +76,9 @@ public final class QuestGuiScreen {
             var failure = progressService.accept(player, questId);
             if (failure.isEmpty()) {
                 messages.send(player, "quest.accepted");
+            } else if (failure.get() == QuestEligibilityService.Ineligibility.ON_COOLDOWN) {
+                Duration remaining = eligibilityService.remainingCooldown(player, quest).orElse(Duration.ZERO);
+                messages.send(player, "quest.on-cooldown", "hours", remaining.toHours(), "minutes", remaining.toMinutesPart());
             } else {
                 messages.send(player, "quest.requirements-not-met", "reason", failure.get());
             }
