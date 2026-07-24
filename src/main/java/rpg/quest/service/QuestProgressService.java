@@ -205,6 +205,67 @@ public final class QuestProgressService {
         return true;
     }
 
+    /**
+     * Debug helper: force-starts a quest for a player, bypassing the prerequisite/level
+     * eligibility checks {@link #accept} normally enforces. No-op (returns false) if the
+     * quest doesn't exist or is already active for that player.
+     */
+    public boolean forceStartQuest(UUID playerId, String questId) {
+        PlayerQuestComponent component = component(playerId).orElse(null);
+        QuestData quest = questRepository.findById(questId).orElse(null);
+        if (component == null || quest == null || component.getActiveQuests().containsKey(questId)) {
+            return false;
+        }
+        component.startQuest(questId);
+        return true;
+    }
+
+    /**
+     * Debug helper: clears a quest's completion record, letting a repeatable quest be
+     * re-accepted immediately regardless of its {@code cooldown-hours}.
+     */
+    public boolean resetCompletion(UUID playerId, String questId) {
+        return component(playerId).map(c -> c.clearCompletion(questId)).orElse(false);
+    }
+
+    /** Debug helper: grants a title without requiring the quest reward that normally awards it. */
+    public boolean grantTitle(UUID playerId, String title) {
+        PlayerQuestComponent component = component(playerId).orElse(null);
+        if (component == null) {
+            return false;
+        }
+        component.addTitle(title);
+        return true;
+    }
+
+    /**
+     * Debug helper: force-equips a title, bypassing the "must already be earned" check
+     * {@link rpg.world.api.QuestApi#equipTitle} enforces - useful to preview a title's
+     * display before deciding to wire it into a quest reward.
+     */
+    public boolean forceEquipTitle(UUID playerId, String title) {
+        PlayerQuestComponent component = component(playerId).orElse(null);
+        if (component == null) {
+            return false;
+        }
+        component.setEquippedTitle(title);
+        return true;
+    }
+
+    public boolean unequipTitle(UUID playerId) {
+        PlayerQuestComponent component = component(playerId).orElse(null);
+        if (component == null) {
+            return false;
+        }
+        component.setEquippedTitle(null);
+        return true;
+    }
+
+    /** Every quest id defined in {@code quests.yml}, for admin visibility/tab-completion. */
+    public List<String> listQuestIds() {
+        return List.copyOf(questRepository.getAll().keySet());
+    }
+
     private Optional<PlayerQuestComponent> component(UUID uuid) {
         return playerDataManager.get(uuid).flatMap(d -> d.component(PlayerQuestComponent.class));
     }

@@ -65,6 +65,11 @@ public final class PlayerQuestComponent implements PlayerDataComponent {
         return Map.copyOf(completedQuests);
     }
 
+    /** Debug helper: clears a quest's completion record, letting it be re-accepted immediately regardless of a repeatable quest's cooldown-hours. */
+    public boolean clearCompletion(String questId) {
+        return completedQuests.remove(questId) != null;
+    }
+
     public void addTitle(String title) {
         if (title != null && !title.isBlank()) {
             titles.add(title);
